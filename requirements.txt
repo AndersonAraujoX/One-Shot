@@ -1,0 +1,5 @@
+click
+python-dotenv
+google-generativeai
+# fastapi
+# uvicorn
