@@ -25,12 +25,12 @@ O programa possui dois modos de operação principais, definidos no `app/main.py
 1.  **Modo Interativo (Padrão):**
     - O usuário inicia a aplicação com os parâmetros básicos da aventura (sistema, gênero, etc.).
     - A aplicação entra em um loop REPL (Read-Eval-Print Loop).
-    - O usuário digita "comandos" (ex: `/contexto`, `/ato1`, `/personagens`) para gerar partes da aventura de forma iterativa.
+    - O usuário digita "comandos" (ex: `/contexto`, `/personagens`, `/cenario`) para gerar partes da aventura de forma iterativa.
     - O comando `/personagens` possui um sub-loop interativo para criar cada personagem individualmente.
 
 2.  **Modo Batch (`--batch`):
     - A aplicação gera uma aventura completa e linear, sem interação do usuário.
-    - Ela executa uma sequência pré-definida de comandos (contexto, ganchos, personagens, atos, etc.).
+    - Ela executa uma sequência pré-definida de comandos (contexto, ganchos, personagens, npcs, locais, cenario, desafios, atos, etc.).
     - A IA é instruída a escolher um caminho de história e desenvolvê-lo diretamente.
     - O resultado completo é salvo em um arquivo Markdown se a opção `--output` for fornecida.
 
@@ -42,6 +42,8 @@ O ponto de entrada é o módulo `app.main`. A execução deve ser feita a partir
 ```bash
 python -m app.main --sistema "D&D 5e" --genero "Fantasia Medieval" --jogadores 4 --nivel "Nível 3"
 ```
+
+Após o início, você pode usar comandos como `/contexto`, `/personagens`, e `/cenario`.
 
 **Exemplo (Modo Batch com Geração de Personagens):**
 ```bash

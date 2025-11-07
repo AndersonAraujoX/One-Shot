@@ -20,15 +20,16 @@ COMMAND_PROMPTS = {
     "/contexto": "Baseado em todo o nosso histórico de conversa até agora, gere o 'Contexto (Background)' e a 'Sinopse' para esta aventura.",
     "/ganchos": "Excelente. Agora, baseado em todo o histórico, gere os 'Ganchos da Trama' para iniciar a aventura.",
     "/personagens": "Ótimo. Agora, gere {num_jogadores} personagens de jogador prontos para esta aventura, no sistema {sistema} e nível {nivel_tier}. Para cada um, detalhe: Nome, Raça/Origem, Classe/Arquétipo, um Background conciso, Personalidade, um Objetivo Pessoal e sugestões de Atributos e Equipamentos iniciais.",
-    "/ato1": "Perfeito. Com base no que estabelecemos, gere o 'Ato 1: A Introdução', onde os jogadores se envolvem com a trama.",
     "/npcs_principais": "Ótimo. Descreva agora os 'NPCs Principais', incluindo o vilão e possíveis aliados, conectando-os à história.",
-    "/ato2": "Continuando nossa história, gere o 'Ato 2: A Complicação', o núcleo da investigação ou exploração.",
     "/locais": "Descreva os 'Locais Importantes' onde a aventura se desenrolará, dando vida ao cenário.",
     "/desafios": "Com base na trama e nos locais, gere os 'Desafios', como combates, quebra-cabeças ou interações sociais.",
+    "/ato1": "Perfeito. Com base no que estabelecemos, gere o 'Ato 1: A Introdução', onde os jogadores se envolvem com a trama.",
+    "/ato2": "Continuando nossa história, gere o 'Ato 2: A Complicação', o núcleo da investigação ou exploração.",
     "/ato3": "Vamos avançar. Gere o 'Ato 3: O Ponto de Virada', um momento que muda a dinâmica da aventura.",
     "/ato4": "Estamos chegando ao clímax. Gere o 'Ato 4: O Clímax', o confronto final ou a resolução do conflito principal.",
     "/ato5": "Para finalizar, gere o 'Ato 5: A Resolução', descrevendo as consequências e o que acontece após o clímax.",
-    "/resumo": "Por favor, gere um resumo conciso de toda a aventura que criamos até agora, organizando os pontos principais."
+    "/resumo": "Por favor, gere um resumo conciso de toda a aventura que criamos até agora, organizando os pontos principais.",
+    "/cenario": "Baseado nos locais e desafios, gere 3 prompts de texto para um gerador de imagens de IA criar mapas de batalha 2D, estilo top-down, para os encontros mais prováveis."
 }
 
 def _iniciar_modelo_e_chat(system_instruction):
@@ -81,8 +82,8 @@ def gerar_aventura_completa(**kwargs):
             comandos_para_executar.append("/personagens")
         
         comandos_para_executar.extend([
-            "/ato1", "/npcs_principais", "/ato2", "/locais", 
-            "/desafios", "/ato3", "/ato4", "/ato5", "/resumo"
+            "/npcs_principais", "/locais", "/cenario", "/desafios", 
+            "/ato1", "/ato2", "/ato3", "/ato4", "/ato5", "/resumo"
         ])
 
         # 3. Executa cada comando em sequência
@@ -197,6 +198,7 @@ def iniciar_sessao_criativa(**kwargs):
             except Exception as e:
                 click.echo(click.style(f"\nErro durante a criação de personagens: {e}", "red"))
             continue
+
 
         # Lógica para todos os outros comandos
         prompt = COMMAND_PROMPTS.get(user_input.lower())

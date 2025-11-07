@@ -13,3 +13,8 @@ venv/
 # IDE
 .idea/
 .vscode/
+
+# Arquivos de história gerados
+*.md
+!README.md
+*.zip
