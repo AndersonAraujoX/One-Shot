@@ -19,7 +19,7 @@ COMMAND_PROMPTS = {
     "/setup": "Vamos alterar os parâmetros iniciais da aventura. Por favor, aguarde as novas instruções.",
     "/contexto": "Baseado em todo o nosso histórico de conversa até agora, gere o 'Contexto (Background)' e a 'Sinopse' para esta aventura.",
     "/ganchos": "Excelente. Agora, baseado em todo o histórico, gere os 'Ganchos da Trama' para iniciar a aventura.",
-    "/personagens": "Ótimo. Agora, gere 4 personagens de jogador prontos para esta aventura, no nível que definimos. Para cada um, inclua: Nome, Raça, Classe, um breve Background de uma frase, e uma sugestão de personalidade.",
+    "/personagens": "Ótimo. Agora, gere {num_jogadores} personagens de jogador prontos para esta aventura, no sistema {sistema} e nível {nivel_tier}. Para cada um, detalhe: Nome, Raça/Origem, Classe/Arquétipo, um Background conciso, Personalidade, um Objetivo Pessoal e sugestões de Atributos e Equipamentos iniciais.",
     "/ato1": "Perfeito. Com base no que estabelecemos, gere o 'Ato 1: A Introdução', onde os jogadores se envolvem com a trama.",
     "/npcs_principais": "Ótimo. Descreva agora os 'NPCs Principais', incluindo o vilão e possíveis aliados, conectando-os à história.",
     "/ato2": "Continuando nossa história, gere o 'Ato 2: A Complicação', o núcleo da investigação ou exploração.",
@@ -87,7 +87,16 @@ def gerar_aventura_completa(**kwargs):
 
         # 3. Executa cada comando em sequência
         for i, comando in enumerate(comandos_para_executar, 2):
-            prompt = COMMAND_PROMPTS[comando]
+            # Formata o prompt se for para gerar personagens, para incluir detalhes dinâmicos
+            if comando == "/personagens":
+                prompt = COMMAND_PROMPTS[comando].format(
+                    num_jogadores=kwargs.get('num_jogadores', 4),
+                    sistema=kwargs.get('sistema', 'D&D 5e'),
+                    nivel_tier=kwargs.get('nivel_tier', 'Nível 1')
+                )
+            else:
+                prompt = COMMAND_PROMPTS[comando]
+
             click.echo(click.style(f"\n{i}. Executando {comando}...", fg="cyan"))
             response = chat.send_message(prompt)
             # Usa o nome do comando como título da seção
@@ -138,28 +147,63 @@ def iniciar_sessao_criativa(**kwargs):
         
         if user_input.lower() == "/setup":
             click.echo(click.style("Modo de setup: Forneça os novos parâmetros.", fg="cyan"))
-            novos_kwargs = {
-                "sistema": click.prompt("Novo Sistema"),
-                "genero_estilo": click.prompt("Novo Gênero/Estilo"),
-                "num_jogadores": click.prompt("Novo N° de Jogadores", type=int),
-                "nivel_tier": click.prompt("Novo Nível/Tier"),
-                "tempo_estimado": click.prompt("Novo Tempo Estimado")
+            # Armazena os novos kwargs na variável da sessão
+            kwargs = {
+                "sistema": click.prompt("Novo Sistema", default=kwargs.get('sistema')),
+                "genero_estilo": click.prompt("Novo Gênero/Estilo", default=kwargs.get('genero_estilo')),
+                "num_jogadores": click.prompt("Novo N° de Jogadores", type=int, default=kwargs.get('num_jogadores')),
+                "nivel_tier": click.prompt("Novo Nível/Tier", default=kwargs.get('nivel_tier')),
+                "tempo_estimado": click.prompt("Novo Tempo Estimado", default=kwargs.get('tempo_estimado'))
             }
             try:
                 click.echo(click.style("Atualizando setup com a IA...", fg="cyan"))
-                response_text = _enviar_setup_inicial(chat, **novos_kwargs)
+                response_text = _enviar_setup_inicial(chat, **kwargs)
                 click.echo(click.style("\n🤖 IA:", fg="yellow") + f" {response_text}")
             except Exception as e:
                 click.echo(click.style(f"\nErro ao atualizar o setup: {e}", fg="red"))
             continue
 
-        prompt = COMMAND_PROMPTS.get(user_input.lower())
+        if user_input.lower() == "/personagens":
+            try:
+                num_jogadores = kwargs.get("num_jogadores", 1)
+                nivel_tier = kwargs.get("nivel_tier", "Nível 1")
+                sistema = kwargs.get("sistema", "D&D 5e")
+                click.echo(click.style(f"Iniciando criação interativa de {num_jogadores} personagem(ns) para {sistema} {nivel_tier}.", fg="cyan"))
+                
+                for i in range(num_jogadores):
+                    desc_personagem = click.prompt(click.style(f"\nDescreva o conceito do Personagem {i+1} (ex: 'elfo ladino arqueiro com um passado nobre')", fg="white"))
+                    
+                    prompt_personagem = f"""Baseado no conceito a seguir, gere um personagem de jogador para o sistema '{sistema}', no {nivel_tier}.
+                    Conceito: '{desc_personagem}'.
 
+                    Leve em conta o contexto da nossa aventura. Detalhe os seguintes pontos em formato Markdown:
+                    - **Nome:** (e apelido, se aplicável)
+                    - **Raça/Origem:**
+                    - **Classe/Arquétipo:**
+                    - **Background:** (Um parágrafo conciso sobre sua história e origem)
+                    - **Personalidade:** (Sugira traços, ideais, vínculos e defeitos)
+                    - **Objetivo Pessoal:** (O que este personagem busca alcançar na aventura?)
+                    - **Atributos:** (Sugira os valores principais de atributos, ex: For 16, Dex 14, etc.)
+                    - **Perícias & Equipamentos:** (Sugira 2-3 perícias principais e o equipamento inicial relevante)
+                    """
+                    
+                    click.echo(click.style("Gerando personagem...", fg="cyan"))
+                    response = chat.send_message(prompt_personagem)
+                    click.echo(click.style(f"\n--- Personagem {i+1} Gerado ---", "yellow"))
+                    click.echo(response.text)
+                
+                click.echo(click.style("\nCriação de personagens concluída!", "green", bold=True))
+
+            except Exception as e:
+                click.echo(click.style(f"\nErro durante a criação de personagens: {e}", "red"))
+            continue
+
+        # Lógica para todos os outros comandos
+        prompt = COMMAND_PROMPTS.get(user_input.lower())
         if not prompt:
             click.echo(click.style("Comando inválido. Tente um dos comandos sugeridos.", fg="red"))
             continue
 
-        # Envia o comando formatado para a IA, que usará o histórico
         try:
             click.echo(click.style("Gerando...", fg="cyan"))
             response = chat.send_message(prompt)

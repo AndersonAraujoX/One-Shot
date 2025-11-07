@@ -6,44 +6,43 @@ from dotenv import load_dotenv
 load_dotenv()
 
 import click
-from app.generator import gerar_aventura
+from app.chat import iniciar_sessao_criativa, gerar_aventura_completa
 
 @click.command()
-@click.option('--sistema', required=True, help='Sistema de regras (ex: "D&D 5e").')
-@click.option('--genero', 'genero_estilo', required=True, help='Gênero da aventura (ex: "Terror Cósmico").')
-@click.option('--jogadores', 'num_jogadores', required=True, help='Número de jogadores (ex: "4 jogadores").')
-@click.option('--tempo', 'tempo_estimado', required=True, help='Duração estimada da sessão (ex: "3-4 horas").')
-@click.option('--tom', 'tom_adicional', default="Nenhum", help='Tom adicional (ex: "Sombrio, Misterioso").')
-@click.option('--nivel', 'nivel_tier', default="Não especificado", help='Nível ou tier dos personagens (ex: "Nível 5").')
-@click.option('--output', 'output_file', help='(Opcional) Arquivo para salvar a aventura gerada.')
-def cli(sistema, genero_estilo, num_jogadores, tempo_estimado, tom_adicional, nivel_tier, output_file):
+# Parâmetros para definir a base da aventura
+@click.option('--sistema', required=True, help='Sistema de regras (ex: "D&D 5e", "Pathfinder 2e").')
+@click.option('--genero', 'genero_estilo', required=True, help='Gênero da aventura (ex: "Fantasia Sombria", "Sci-Fi").')
+@click.option('--jogadores', 'num_jogadores', type=int, required=True, help='Número de jogadores.')
+@click.option('--nivel', 'nivel_tier', required=True, help='Nível ou tier dos personagens (ex: "Nível 5").')
+@click.option('--tempo', 'tempo_estimado', default="3-4 horas", show_default=True, help='Duração estimada da sessão.')
+
+# Flags para controlar o modo de execução
+@click.option('--batch', 'modo_batch', is_flag=True, help='Ativa o modo de geração completa sem interação.')
+@click.option('--personagens', 'gerar_personagens', is_flag=True, help='(Modo Batch) Inclui a geração de personagens na aventura completa.')
+@click.option('--output', 'output_file', help='(Modo Batch) Arquivo Markdown para salvar a aventura completa.')
+
+def cli(sistema, genero_estilo, num_jogadores, nivel_tier, tempo_estimado, modo_batch, gerar_personagens, output_file):
     """
-    Gerador de One-Shots de RPG usando IA Generativa.
+    Assistente de Criação de RPG: uma ferramenta para gerar one-shots de forma colaborativa ou automática.
     """
-    click.echo("Iniciando a geração da sua aventura one-shot...")
-    
-    aventura_markdown = gerar_aventura(
-        sistema=sistema,
-        genero_estilo=genero_estilo,
-        num_jogadores=num_jogadores,
-        tempo_estimado=tempo_estimado,
-        tom_adicional=tom_adicional,
-        nivel_tier=nivel_tier
-    )
-    
-    if output_file:
-        try:
-            with open(output_file, 'w', encoding='utf-8') as f:
-                f.write(aventura_markdown)
-            click.echo(f"Aventura salva com sucesso em: {output_file}")
-        except IOError as e:
-            click.echo(f"Erro ao salvar o arquivo: {e}", err=True)
+    # Agrupa os parâmetros em um dicionário para facilitar o envio
+    config = {
+        "sistema": sistema,
+        "genero_estilo": genero_estilo,
+        "num_jogadores": num_jogadores,
+        "nivel_tier": nivel_tier,
+        "tempo_estimado": tempo_estimado,
+    }
+
+    if modo_batch:
+        # Adiciona as opções específicas do modo batch ao dicionário de configuração
+        config["output_file"] = output_file
+        config["gerar_personagens"] = gerar_personagens
+        
+        gerar_aventura_completa(**config)
     else:
-        # Imprime o resultado no console com uma separação clara
-        click.echo("\n" + "="*80)
-        click.echo("AVENTURA GERADA")
-        click.echo("="*80 + "\n")
-        click.echo(aventura_markdown)
+        # Inicia a sessão interativa padrão
+        iniciar_sessao_criativa(**config)
 
 if __name__ == '__main__':
     cli()
