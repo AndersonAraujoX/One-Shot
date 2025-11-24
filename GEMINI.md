@@ -6,52 +6,57 @@ Este arquivo serve como um resumo de contexto para o assistente de IA (Gemini) q
 
 ### 1. Visão Geral do Projeto
 
-O objetivo deste projeto é criar uma aplicação em Python chamada **"Assistente de Criação de RPG"**. A aplicação funciona como um CLI interativo que auxilia um Mestre de Jogo (GM) a criar aventuras de RPG de forma colaborativa e passo a passo.
+O objetivo deste projeto é criar uma aplicação web que auxilia um Mestre de Jogo (GM) a criar aventuras de RPG de forma colaborativa e passo a passo.
 
-A arquitetura é **conversacional**. A aplicação mantém um histórico de chat com a IA (usando o `google-generativeai`) para garantir que cada parte da aventura (atos, NPCs, etc.) seja gerada com consistência narrativa, baseando-se no que já foi criado.
+A aplicação consiste em um backend FastAPI que serve a lógica de geração de conteúdo e um frontend React que fornece a interface do usuário. Uma versão de demonstração estática do frontend está disponível no GitHub Pages.
 
 ### 2. Arquitetura e Tecnologias
 
-- **Linguagem:** Python
-- **Interface:** CLI (Command-Line Interface) interativo, construído com a biblioteca `click`.
-- **IA Generativa:** A integração é feita com a biblioteca `google-generativeai`, utilizando um modelo de chat como o `gemini-2.5-pro`.
-- **Gerenciamento de Chaves:** A chave da API do Gemini é gerenciada através de um arquivo `.env` na raiz do projeto.
-- **Módulo Principal:** A lógica está centralizada no diretório `app/`, principalmente nos arquivos `main.py` (ponto de entrada e CLI) e `chat.py` (lógica de conversação e geração).
+- **Backend:**
+    - **Framework:** FastAPI
+    - **Linguagem:** Python
+    - **IA Generativa:** `google-generativeai`
+    - **Modelagem de Dados:** Pydantic (`backend/app/models.py`)
+    - **Módulos Principais:**
+        - `backend/app/api.py`: Ponto de entrada da API FastAPI, define os endpoints.
+        - `backend/app/chat.py`: Gerencia a comunicação com a API do Gemini, histórico, geração de imagens e lógica de batch.
+        - `backend/app/generator.py`: Lógica para geração de aventura baseada em Pydantic.
+        - `backend/app/vtt_exporter.py`: Lógica para exportação para FoundryVTT.
+        - `backend/app/pdf_exporter.py`: Lógica para exportação para PDF.
+        - `backend/app/interactive.py`: Contém a lógica para o modo interativo (CLI legado).
 
-### 3. Fluxos de Execução
+- **Frontend:**
+    - **Framework:** React
+    - **Linguagem:** JavaScript
+    - **Componentes Principais:**
+        - `frontend/src/App.js`: Componente principal, gerencia o estado e a comunicação com o backend/modo demo.
+        - `frontend/src/components/AdventureForm.js`: Formulário para configuração da aventura.
+        - `frontend/src/components/Chat.js`: Interface de chat para o modo interativo (com suporte a imagens).
+        - `frontend/src/components/AdventureView.js`: Visualizador para a aventura gerada em modo batch (com suporte a imagens e botões de exportação).
 
-O programa possui dois modos de operação principais, definidos no `app/main.py`:
+### 3. Como Executar (Localmente)
 
-1.  **Modo Interativo (Padrão):**
-    - O usuário inicia a aplicação com os parâmetros básicos da aventura (sistema, gênero, etc.).
-    - A aplicação entra em um loop REPL (Read-Eval-Print Loop).
-    - O usuário digita "comandos" (ex: `/contexto`, `/personagens`, `/cenario`) para gerar partes da aventura de forma iterativa.
-    - O comando `/personagens` possui um sub-loop interativo para criar cada personagem individualmente.
+#### Backend
+1.  Navegue até a pasta `backend`.
+2.  Instale as dependências: `pip install -r requirements.txt`.
+3.  Crie um arquivo `.env` na pasta `backend` com sua `GEMINI_API_KEY`.
+4.  Inicie o servidor: `uvicorn app.api:app --reload`.
 
-2.  **Modo Batch (`--batch`):
-    - A aplicação gera uma aventura completa e linear, sem interação do usuário.
-    - Ela executa uma sequência pré-definida de comandos (contexto, ganchos, personagens, npcs, locais, cenario, desafios, atos, etc.).
-    - A IA é instruída a escolher um caminho de história e desenvolvê-lo diretamente.
-    - O resultado completo é salvo em um arquivo Markdown se a opção `--output` for fornecida.
+#### Frontend
+1.  Em outro terminal, navegue até a pasta `frontend`.
+2.  Instale as dependências: `npm install`.
+3.  Inicie o servidor de desenvolvimento: `npm start`.
 
-### 4. Como Executar
+A aplicação estará disponível em `http://localhost:3000`.
 
-O ponto de entrada é o módulo `app.main`. A execução deve ser feita a partir do diretório raiz do projeto (`gerador-one-shot/`).
+### 4. Deploy no GitHub Pages (Versão de Demonstração)
 
-**Exemplo (Modo Interativo):**
-```bash
-python -m app.main --sistema "D&D 5e" --genero "Fantasia Medieval" --jogadores 4 --nivel "Nível 3"
-```
+Uma versão estática do frontend (apenas demonstração com dados mockados, sem backend ativo) foi deployada no GitHub Pages.
 
-Após o início, você pode usar comandos como `/contexto`, `/personagens`, e `/cenario`.
-
-**Exemplo (Modo Batch com Geração de Personagens):**
-```bash
-python -m app.main --sistema "D&D 5e" --genero "Fantasia Medieval" --jogadores 4 --nivel "Nível 3" --batch --personagens --output "aventura_gerada.md"
-```
+**URL da Demonstração:** [https://AndersonAraujoX.github.io/One-Shot/](https://AndersonAraujoX.github.io/One-Shot/)
 
 ### 5. Histórico e Versionamento
 
 - O projeto é versionado com Git.
 - O repositório remoto está em: `https://github.com/AndersonAraujoX/One-Shot.git`.
-- O arquivo `.gitignore` está configurado para ignorar arquivos de ambiente (`.env`), cache do Python (`__pycache__`) e os arquivos de aventura gerados (`*.md`, `*.zip`), com exceção do `README.md`.
+- O arquivo `.gitignore` está configurado para ignorar arquivos de ambiente, caches e arquivos gerados (`*.md`, `*.json`, `*.yaml`, `*.zip`, `.env`, `__pycache__`, `static/generated_images/`).

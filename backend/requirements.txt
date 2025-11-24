@@ -1,0 +1,9 @@
+PyYAML
+tenacity
+rich
+google-generativeai
+fastapi
+uvicorn
+Pillow
+python-dotenv
+reportlab

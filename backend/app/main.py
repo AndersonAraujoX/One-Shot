@@ -6,7 +6,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 import click
-from app.chat import iniciar_sessao_criativa, gerar_aventura_completa
+from app.interactive import iniciar_sessao_criativa, gerar_aventura_completa
 
 @click.command()
 # Parâmetros para definir a base da aventura
@@ -19,9 +19,10 @@ from app.chat import iniciar_sessao_criativa, gerar_aventura_completa
 # Flags para controlar o modo de execução
 @click.option('--batch', 'modo_batch', is_flag=True, help='Ativa o modo de geração completa sem interação.')
 @click.option('--personagens', 'gerar_personagens', is_flag=True, help='(Modo Batch) Inclui a geração de personagens na aventura completa.')
-@click.option('--output', 'output_file', help='(Modo Batch) Arquivo Markdown para salvar a aventura completa.')
+@click.option('--formato', type=click.Choice(['markdown', 'json', 'yaml'], case_sensitive=False), default='markdown', show_default=True, help='Formato do arquivo de saída.')
+@click.option('--output', 'output_file', help='(Modo Batch) Arquivo para salvar a aventura completa.')
 
-def cli(sistema, genero_estilo, num_jogadores, nivel_tier, tempo_estimado, modo_batch, gerar_personagens, output_file):
+def cli(sistema, genero_estilo, num_jogadores, nivel_tier, tempo_estimado, modo_batch, gerar_personagens, formato, output_file):
     """
     Assistente de Criação de RPG: uma ferramenta para gerar one-shots de forma colaborativa ou automática.
     """
@@ -38,6 +39,7 @@ def cli(sistema, genero_estilo, num_jogadores, nivel_tier, tempo_estimado, modo_
         # Adiciona as opções específicas do modo batch ao dicionário de configuração
         config["output_file"] = output_file
         config["gerar_personagens"] = gerar_personagens
+        config["formato"] = formato
         
         gerar_aventura_completa(**config)
     else:
