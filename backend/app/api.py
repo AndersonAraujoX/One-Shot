@@ -2,10 +2,14 @@
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 import uuid
+from dotenv import load_dotenv
 from .chat import iniciar_chat, enviar_mensagem, ContentGenerationError, gerar_aventura_batch
 from .models import Aventura
 
 from fastapi.staticfiles import StaticFiles
+
+# Carrega as variáveis de ambiente do arquivo .env
+load_dotenv()
 
 app = FastAPI()
 
@@ -52,6 +56,20 @@ async def start_chat_endpoint(config: AdventureConfig):
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Erro inesperado: {e}")
 
+@app.post("/api/generate_adventure")
+async def generate_adventure_endpoint(config: AdventureConfig):
+    """Gera uma aventura completa em modo batch."""
+    try:
+        # Pydantic V2 usa model_dump() em vez de dict()
+        adventure = gerar_aventura_batch(**config.model_dump())
+        return adventure
+    except (ValueError, ContentGenerationError) as e:
+        raise HTTPException(status_code=500, detail=str(e))
+    except Exception as e:
+        # Adiciona mais detalhes ao log de erro para depuração
+        print(f"Erro detalhado ao gerar aventura: {e}")
+        raise HTTPException(status_code=500, detail=f"Erro inesperado ao gerar aventura: {e}")
+
 @app.post("/api/send_message")
 async def send_message_endpoint(message: ChatMessage):
     """Envia uma mensagem para uma sessão de chat existente."""
@@ -70,8 +88,8 @@ async def send_message_endpoint(message: ChatMessage):
 from fastapi.responses import Response
 from .pdf_exporter import PDFExporter
 
-...
-
+# O endpoint de exportação de PDF não foi usado ainda, mas o erro de importação foi corrigido anteriormente.
+# Removendo o '...' para garantir que o arquivo seja sintaticamente correto.
 @app.post("/api/export_pdf")
 async def export_pdf_endpoint(aventura: Aventura):
     """Exporta a aventura para um arquivo PDF."""
