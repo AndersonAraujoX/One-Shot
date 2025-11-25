@@ -191,6 +191,9 @@ def gerar_aventura_batch(**kwargs) -> dict:
         response_text = enviar_mensagem(chat, prompt_text)
 
         if comando in json_commands:
+            print(f"--- RESPOSTA DA IA PARA '{comando}' ---")
+            print(response_text)
+            print("-----------------------------------------")
             try:
                 # O LLM pode retornar o JSON dentro de um bloco de código markdown
                 clean_response = response_text.strip().replace("```json", "").replace("```", "").strip()
