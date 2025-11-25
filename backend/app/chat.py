@@ -108,7 +108,7 @@ def iniciar_chat():
     
     genai.configure(api_key=api_key)
     model = genai.GenerativeModel(
-        model_name="gemini-1.5-flash",
+        model_name="gemini-pro",
         system_instruction=SYSTEM_INSTRUCTION
     )
     return model.start_chat(history=[])
@@ -133,7 +133,7 @@ def enviar_mensagem(chat, prompt: str, max_history_tokens: int = 10) -> str:
         return response.text
     except api_exceptions.FailedPrecondition as e:
         raise ContentGenerationError(f"Erro de pré-condição da API: {e}")
-    except api_exceptions.APIError as e:
+    except api_exceptions.GoogleAPICallError as e:
         raise ContentGenerationError(f"Ocorreu um erro na API do Gemini: {e}")
     except genai.types.generation_types.StopCandidateException as e:
         raise ContentGenerationError(
@@ -146,7 +146,7 @@ def enviar_mensagem(chat, prompt: str, max_history_tokens: int = 10) -> str:
 def gerar_imagem(prompt: str) -> str:
     """Gera uma imagem a partir de um prompt e a salva localmente."""
     try:
-        model = genai.GenerativeModel('gemini-1.5-flash')
+        model = genai.GenerativeModel('gemini-pro')
         response = model.generate_content(prompt, generation_config={"response_mime_type": "image/png"})
         
         # Extrai os dados da imagem
