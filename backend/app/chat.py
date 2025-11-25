@@ -108,7 +108,7 @@ def iniciar_chat():
     
     genai.configure(api_key=api_key)
     model = genai.GenerativeModel(
-        model_name="gemini-3-pro-preview",
+        model_name="gemini-2.5-pro",
         system_instruction=SYSTEM_INSTRUCTION
     )
     return model.start_chat(history=[])
@@ -146,7 +146,7 @@ def enviar_mensagem(chat, prompt: str, max_history_tokens: int = 10) -> str:
 def gerar_imagem(prompt: str) -> str:
     """Gera uma imagem a partir de um prompt e a salva localmente."""
     try:
-        model = genai.GenerativeModel('gemini-3-pro-preview')
+        model = genai.GenerativeModel('gemini-2.5-pro')
         response = model.generate_content(prompt, generation_config={"response_mime_type": "image/png"})
         
         # Extrai os dados da imagem
