@@ -2,6 +2,7 @@
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 import uuid
+import traceback
 from dotenv import load_dotenv
 from .chat import iniciar_chat, enviar_mensagem, ContentGenerationError, gerar_aventura_batch
 from .models import Aventura
@@ -51,9 +52,10 @@ async def start_chat_endpoint(config: AdventureConfig):
         
         return {"session_id": session_id, "initial_response": initial_response}
         
-    except (ValueError, ContentGenerationError) as e:
-        raise HTTPException(status_code=500, detail=str(e))
     except Exception as e:
+        print("----- ERRO DETALHADO NO /api/start_chat -----")
+        traceback.print_exc()
+        print("---------------------------------------------")
         raise HTTPException(status_code=500, detail=f"Erro inesperado: {e}")
 
 @app.post("/api/generate_adventure")
