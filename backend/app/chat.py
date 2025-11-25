@@ -1,6 +1,7 @@
 # backend/app/chat.py
 
 import os
+import json
 import google.generativeai as genai
 from google.api_core import exceptions as api_exceptions
 from tenacity import retry, stop_after_attempt, wait_exponential, retry_if_exception_type
@@ -19,7 +20,7 @@ Para cada parte da aventura, seja criativo e detalhado, sempre mantendo a consis
 # --- PROMPTS PARA COMANDOS ---
 COMMAND_PROMPTS = {
     "contexto": {
-        "prompt": "Baseado em todo o nosso histórico de conversa até agora, gere o 'Contexto (Background)' e a 'Sinopse' para esta aventura.",
+        "prompt": "Baseado em todo o nosso histórico de conversa até agora, gere o 'Contexto (Background)' e a 'Sinopse' para esta aventura. Formate a resposta como um objeto JSON com as chaves 'titulo' (string) e 'sinopse' (string).",
         "description": "Gera o background e a sinopse da aventura.",
         "batch_order": 1
     },
@@ -33,13 +34,13 @@ COMMAND_PROMPTS = {
         "description": "Gera os personagens dos jogadores (requer a flag --personagens no modo batch).",
         "batch_order": 3
     },
-    "npcs_principais": {
-        "prompt": "Ótimo. Descreva agora os 'NPCs Principais', incluindo o vilão e possíveis aliados, conectando-os à história.",
+    "personagens_chave": {
+        "prompt": "Ótimo. Descreva agora os 'NPCs Principais', incluindo o vilão e possíveis aliados. Formate a resposta como um array JSON, onde cada objeto representa um NPC e tem as chaves 'nome' (string), 'aparencia' (string), e 'url_imagem' (string, uma URL de imagem placeholder).",
         "description": "Cria os NPCs principais da aventura.",
         "batch_order": 4
     },
-    "locais": {
-        "prompt": "Descreva os 'Locais Importantes' onde a aventura se desenrolará, dando vida ao cenário.",
+    "locais_importantes": {
+        "prompt": "Descreva os 'Locais Importantes' onde a aventura se desenrolará. Formate a resposta como um array JSON, onde cada objeto representa um local e tem as chaves 'nome' (string), 'atmosfera' (string), e 'url_imagem' (string, uma URL de imagem placeholder).",
         "description": "Descreve os locais importantes.",
         "batch_order": 5
     },
@@ -173,25 +174,40 @@ def gerar_aventura_batch(**kwargs) -> dict:
     chat = iniciar_chat()
     adventure_data = {}
     
-    # Ordena os comandos a serem executados no modo batch
     comandos_batch = sorted(
         [cmd for cmd, meta in COMMAND_PROMPTS.items() if meta.get("batch_order")],
         key=lambda cmd: COMMAND_PROMPTS[cmd]["batch_order"]
     )
 
+    json_commands = ["contexto", "personagens_chave", "locais_importantes"]
+
     for comando in comandos_batch:
-        # Pula a geração de personagens se a flag não estiver ativa
         if comando == "personagens" and not kwargs.get("gerar_personagens", False):
             continue
 
         prompt_info = COMMAND_PROMPTS[comando]
-        prompt_text = prompt_info["prompt"]
-
-        # Formata o prompt se necessário
-        if "{" in prompt_text:
-            prompt_text = prompt_text.format(**kwargs)
+        prompt_text = prompt_info["prompt"].format(**kwargs) if "{" in prompt_info["prompt"] else prompt_info["prompt"]
 
         response_text = enviar_mensagem(chat, prompt_text)
-        adventure_data[comando] = response_text
-        
+
+        if comando in json_commands:
+            try:
+                # O LLM pode retornar o JSON dentro de um bloco de código markdown
+                clean_response = response_text.strip().replace("```json", "").replace("```", "").strip()
+                data = json.loads(clean_response)
+                if comando == 'contexto':
+                    # Adiciona titulo e sinopse ao nível principal
+                    adventure_data.update(data)
+                else:
+                    adventure_data[comando] = data
+            except json.JSONDecodeError:
+                print(f"Alerta: Falha ao decodificar JSON para o comando '{comando}'.")
+                if comando == 'contexto':
+                    adventure_data['titulo'] = "Erro na Geração"
+                    adventure_data['sinopse'] = "Não foi possível gerar o contexto."
+                else:
+                    adventure_data[comando] = [] # Retorna uma lista vazia em caso de falha
+        else:
+            adventure_data[comando] = response_text
+            
     return adventure_data
