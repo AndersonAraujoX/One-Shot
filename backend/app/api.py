@@ -3,6 +3,7 @@ from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 import uuid
 from .chat import iniciar_chat, enviar_mensagem, ContentGenerationError, gerar_aventura_batch
+from .models import Aventura
 
 from fastapi.staticfiles import StaticFiles
 
