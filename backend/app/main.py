@@ -21,8 +21,9 @@ from app.interactive import iniciar_sessao_criativa, gerar_aventura_completa
 @click.option('--personagens', 'gerar_personagens', is_flag=True, help='(Modo Batch) Inclui a geração de personagens na aventura completa.')
 @click.option('--formato', type=click.Choice(['markdown', 'json', 'yaml'], case_sensitive=False), default='markdown', show_default=True, help='Formato do arquivo de saída.')
 @click.option('--output', 'output_file', help='(Modo Batch) Arquivo para salvar a aventura completa.')
+@click.option('--secoes', help='(Modo Batch) Lista de seções para gerar, separadas por espaço (ex: "contexto ganchos vilao").')
 
-def cli(sistema, genero_estilo, num_jogadores, nivel_tier, tempo_estimado, modo_batch, gerar_personagens, formato, output_file):
+def cli(sistema, genero_estilo, num_jogadores, nivel_tier, tempo_estimado, modo_batch, gerar_personagens, formato, output_file, secoes):
     """
     Assistente de Criação de RPG: uma ferramenta para gerar one-shots de forma colaborativa ou automática.
     """
@@ -40,6 +41,8 @@ def cli(sistema, genero_estilo, num_jogadores, nivel_tier, tempo_estimado, modo_
         config["output_file"] = output_file
         config["gerar_personagens"] = gerar_personagens
         config["formato"] = formato
+        if secoes:
+            config["secoes"] = secoes.split()
         
         gerar_aventura_completa(**config)
     else:

@@ -8,6 +8,7 @@ from rich.prompt import Prompt
 from rich.text import Text
 from rich.live import Live
 from rich.spinner import Spinner
+import google.generativeai as genai
 
 from app.chat import iniciar_chat, enviar_mensagem, COMMAND_PROMPTS, ContentGenerationError, gerar_aventura_batch
 
@@ -78,67 +79,85 @@ def iniciar_sessao_criativa(**kwargs):
     while True:
         comandos_str = ", ".join(f"[cyan]/{cmd}[/cyan]" for cmd in COMMAND_PROMPTS.keys())
         console.print(f"\n[magenta]Seus comandos:[/magenta] {comandos_str}, /sair")
+        console.print("Você pode digitar múltiplos comandos de geração separados por espaço (ex: /vilao /locais).")
         user_input = Prompt.ask("[bold white]>[/bold white]")
 
-        if user_input.lower() == "/sair":
+        commands_to_run = user_input.strip().split()
+        
+        should_exit = False
+        for i, command_full in enumerate(commands_to_run):
+            
+            # Tratamento especial para /regenerar, que contém um argumento
+            if command_full.lower().startswith("regenerar"):
+                # Pega o resto da string a partir do comando regenerar
+                regenerate_part = " ".join(commands_to_run[i:])
+                command_name = "regenerar"
+                args = regenerate_part.split(" ", 1)[1] if " " in regenerate_part else ""
+            else:
+                command_name = command_full.lower().lstrip('/')
+                args = ""
+
+            if command_name == "sair":
+                should_exit = True
+                break
+            
+            if command_name == "salvar":
+                filename = Prompt.ask("Digite o nome do arquivo para salvar a sessão", default="sessao_aventura.json")
+                try:
+                    with open(filename, 'w', encoding='utf-8') as f:
+                        history_to_save = [{"role": msg.role, "parts": [part.text for part in msg.parts]} for msg in chat.history]
+                        json.dump(history_to_save, f, ensure_ascii=False, indent=2)
+                    console.print(Panel(f"Sessão salva com sucesso em [bold green]{filename}[/bold green]!", title="Salvo!"))
+                except Exception as e:
+                    console.print(Panel(f"Erro ao salvar a sessão: {e}", title="[bold red]Erro[/bold red]"))
+                continue
+
+            if command_name == "carregar":
+                filename = Prompt.ask("Digite o nome do arquivo para carregar a sessão", default="sessao_aventura.json")
+                try:
+                    with open(filename, 'r', encoding='utf-8') as f:
+                        history_loaded = json.load(f)
+                    
+                    chat = iniciar_chat()
+                    chat.history = [genai.types.Content(parts=[part['text'] for part in msg['parts']], role=msg['role']) for msg in history_loaded]
+
+                    console.print(Panel(f"Sessão carregada com sucesso de [bold green]{filename}[/bold green]!", title="Carregado!"))
+                    console.print(Panel(chat.history[-1].parts[0].text, title="[bold yellow]🤖 Última Mensagem da IA[/bold yellow]", border_style="yellow"))
+                except FileNotFoundError:
+                    console.print(Panel(f"Arquivo '{filename}' não encontrado.", title="[bold red]Erro[/bold red]"))
+                except Exception as e:
+                    console.print(Panel(f"Erro ao carregar a sessão: {e}", title="[bold red]Erro[/bold red]"))
+                # Interrompe o processamento de outros comandos na linha, pois o chat foi substituído
+                break
+
+            if command_name == "regenerar":
+                if args:
+                    secao = args
+                    prompt_info = COMMAND_PROMPTS["regenerar"]
+                    prompt = prompt_info["prompt"].format(secao=secao)
+                    titulo_painel = f"Regenerando: {secao.title()}"
+                    response_text = _gerar_conteudo_com_spinner(chat, prompt, titulo_painel)
+                    if response_text:
+                        console.print(Panel(response_text, title=f"[bold yellow]🤖 {titulo_painel}[/bold yellow]", border_style="yellow"))
+                else:
+                    console.print("[bold red]Uso: /regenerar [nome da seção][/bold red] (ex: /regenerar vilao)")
+                # Como /regenerar consome o resto da linha, paramos aqui.
+                break
+
+            prompt_info = COMMAND_PROMPTS.get(command_name)
+            if not prompt_info:
+                console.print(f"[bold red]Comando '{command_name}' inválido.[/bold red]")
+                continue
+                
+            titulo_painel = command_name.replace('_', ' ').title()
+            response_text = _gerar_conteudo_com_spinner(chat, prompt_info['prompt'], titulo_painel)
+            
+            if response_text:
+                console.print(Panel(response_text, title=f"[bold yellow]🤖 {titulo_painel}[/bold yellow]", border_style="yellow"))
+        
+        if should_exit:
             console.print(Panel("Sessão terminada. [bold green]Boa sorte com sua aventura![/bold green]", title="Até logo!", border_style="green"))
             break
-        
-        command_name = user_input.lower().strip().lstrip('/')
-        
-        if command_name == "salvar":
-            filename = Prompt.ask("Digite o nome do arquivo para salvar a sessão", default="sessao_aventura.json")
-            try:
-                with open(filename, 'w', encoding='utf-8') as f:
-                    history_to_save = [{"role": msg.role, "parts": [part.text for part in msg.parts]} for msg in chat.history]
-                    json.dump(history_to_save, f, ensure_ascii=False, indent=2)
-                console.print(Panel(f"Sessão salva com sucesso em [bold green]{filename}[/bold green]!", title="Salvo!"))
-            except Exception as e:
-                console.print(Panel(f"Erro ao salvar a sessão: {e}", title="[bold red]Erro[/bold red]"))
-            continue
-
-        if command_name == "carregar":
-            filename = Prompt.ask("Digite o nome do arquivo para carregar a sessão", default="sessao_aventura.json")
-            try:
-                with open(filename, 'r', encoding='utf-8') as f:
-                    history_loaded = json.load(f)
-                
-                chat = iniciar_chat()
-                chat.history = [genai.types.Content(parts=[part['text'] for part in msg['parts']], role=msg['role']) for msg in history_loaded]
-
-                console.print(Panel(f"Sessão carregada com sucesso de [bold green]{filename}[/bold green]!", title="Carregado!"))
-                console.print(Panel(chat.history[-1].parts[0].text, title="[bold yellow]🤖 Última Mensagem da IA[/bold yellow]", border_style="yellow"))
-
-            except FileNotFoundError:
-                console.print(Panel(f"Arquivo '{filename}' não encontrado.", title="[bold red]Erro[/bold red]"))
-            except Exception as e:
-                console.print(Panel(f"Erro ao carregar a sessão: {e}", title="[bold red]Erro[/bold red]"))
-            continue
-            
-        if command_name.startswith("regenerar"):
-            part_to_regenerate = user_input.split(" ", 1)
-            if len(part_to_regenerate) > 1:
-                secao = part_to_regenerate[1]
-                prompt_info = COMMAND_PROMPTS["regenerar"]
-                prompt = prompt_info["prompt"].format(secao=secao)
-                titulo_painel = f"Regenerando: {secao.title()}"
-                response_text = _gerar_conteudo_com_spinner(chat, prompt, titulo_painel)
-                if response_text:
-                    console.print(Panel(response_text, title=f"[bold yellow]🤖 {titulo_painel}[/bold yellow]", border_style="yellow"))
-            else:
-                console.print("[bold red]Uso: /regenerar [nome da seção][/bold red] (ex: /regenerar vilao)")
-            continue
-
-        prompt_info = COMMAND_PROMPTS.get(command_name)
-        if not prompt_info:
-            console.print("[bold red]Comando inválido.[/bold red] Tente um dos comandos sugeridos.")
-            continue
-            
-        titulo_painel = command_name.replace('_', ' ').title()
-        response_text = _gerar_conteudo_com_spinner(chat, prompt_info['prompt'], titulo_painel)
-        
-        if response_text:
-            console.print(Panel(response_text, title=f"[bold yellow]🤖 {titulo_painel}[/bold yellow]", border_style="yellow"))
 
 
 def gerar_aventura_completa(**kwargs):

@@ -1,0 +1,49 @@
+{
+  "titulo": "A Tumba do Terror Rastejante (DEMO)",
+  "sinopse": "Uma antiga tumba, redescoberta recentemente nas Selvas de Chult, sussurra promessas de tesouros inimagináveis. No entanto, lendas locais falam de um guardião antigo, uma entidade de pesadelo conhecida apenas como o 'Terror Rastejante', que protege os segredos do túmulo. Os aventureiros são chamados para desvendar este mistério, mas o que encontrarão lá dentro testará sua coragem e sanidade.",
+  "contexto": {
+    "titulo": "A Tumba do Terror Rastejante",
+    "sinopse": "Nas profundezas das selvas de Chult, uma tumba perdida da civilização de Omu foi redescoberta. Diz-se que pertence a um antigo rei sacerdote que acumulou uma vasta fortuna, mas que foi amaldiçoado por um pacto sombrio. A maldição manifestou-se como uma criatura monstruosa, um horror rastejante que aniquila todos que ousam perturbar seu descanso. A Sociedade dos Exploradores em Porto Nyanzaru está oferecendo uma recompensa generosa para quem puder mapear a tumba e trazer de volta um artefato conhecido como o 'Olho do Rei Sacerdote'."
+  },
+  "ganchos": [
+    "Um mapa antigo comprado de um mercador misterioso em um beco escuro de Porto Nyanzaru.",
+    "Um pedido de ajuda de um membro da Sociedade dos Exploradores cujo parceiro desapareceu perto da localização da tumba.",
+    "Rumores de uma fonte de poder imenso dentro da tumba que poderia curar uma praga que assola uma aldeia local."
+  ],
+  "personagens_chave": [
+    {
+      "nome": "Zindar, o Guia",
+      "aparencia": "Um veterano explorador de Chult com um olho faltando e uma pele marcada por inúmeras cicatrizes de batalha. Ele é cínico, mas confiável.",
+      "url_imagem": "https://i.imgur.com/tG3aL6G.png"
+    },
+    {
+      "nome": "O Terror Rastejante",
+      "aparencia": "Uma massa de tentáculos, olhos e bocas que se move pelas sombras. A criatura não tem uma forma fixa e pode se espremer através de fendas impossivelmente pequenas. Sua presença causa um sentimento de pavor avassalador.",
+      "url_imagem": "https://i.imgur.com/4J2yW9f.png"
+    }
+  ],
+  "locais_importantes": [
+    {
+      "nome": "A Entrada da Tumba",
+      "atmosfera": "Uma estrutura de pedra engolida pela selva, com vinhas grossas cobrindo inscrições antigas. O ar é pesado, úmido e cheio do som de insetos e animais distantes. Um silêncio estranho paira diretamente em frente à entrada.",
+      "url_imagem": "https://i.imgur.com/OplgaB8.png"
+    },
+    {
+      "nome": "A Câmara dos Enigmas",
+      "atmosfera": "Uma sala circular com paredes cobertas de hieróglifos que brilham com uma luz azul fraca. No centro, um pedestal de pedra está vazio. A sala parece um quebra-cabeça gigante esperando para ser resolvido.",
+      "url_imagem": "https://i.imgur.com/a7y3x3e.png"
+    },
+    {
+        "nome": "O Covil do Terror",
+        "atmosfera": "Uma caverna cavernosa e escura, coberta de um lodo preto pulsante. Ossos de criaturas e aventureiros malfadados estão espalhados pelo chão. O ar é frio e cheira a morte e ozônio.",
+        "url_imagem": "https://i.imgur.com/sC4tJ8C.png"
+    }
+  ],
+  "desafios": [
+      "Armadilhas de dardos venenosos nas paredes dos corredores.",
+      "Um quebra-cabeça que envolve alinhar símbolos para abrir uma porta secreta.",
+      "Combate com guardiões de pedra animados que protegem a câmara principal.",
+      "Confronto final com o Terror Rastejante."
+  ],
+  "resumo_da_aventura": "Os jogadores seguem um gancho que os leva à tumba perdida. Eles devem navegar por armadilhas e quebra-cabeças, possivelmente com a ajuda de Zindar. Eles descobrirão a história do rei sacerdote e, finalmente, enfrentarão o Terror Rastejante em seu covil para recuperar o artefato ou simplesmente sobreviver."
+}

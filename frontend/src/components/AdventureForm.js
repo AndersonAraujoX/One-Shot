@@ -1,51 +1,52 @@
-// src/components/AdventureForm.js
 import React, { useState } from 'react';
+import './AdventureForm.css';
 
-const AdventureForm = ({ onStartChat, onGenerateAdventure }) => {
+const AdventureForm = ({ onGenerateAdventure, isGenerating }) => {
     const [config, setConfig] = useState({
         sistema: 'D&D 5e',
-        genero_estilo: 'Fantasia',
+        genero_estilo: 'Fantasia Sombria',
         num_jogadores: 4,
-        nivel_tier: 'Nível 3',
-        tempo_estimado: '3-4 horas'
+        nivel_tier: 'Nível 5',
     });
 
     const handleChange = (e) => {
         const { name, value } = e.target;
         setConfig(prevConfig => ({
             ...prevConfig,
-            [name]: value
+            [name]: name === 'num_jogadores' ? parseInt(value, 10) : value
         }));
     };
 
+    const handleSubmit = (e) => {
+        e.preventDefault();
+        onGenerateAdventure(config);
+    };
+
     return (
-        <div className="adventure-form">
-            <h2>Crie sua Aventura</h2>
-            <form>
-                <label>
-                    Sistema:
-                    <input type="text" name="sistema" value={config.sistema} onChange={handleChange} />
-                </label>
-                <label>
-                    Gênero/Estilo:
-                    <input type="text" name="genero_estilo" value={config.genero_estilo} onChange={handleChange} />
-                </label>
-                <label>
-                    Número de Jogadores:
-                    <input type="number" name="num_jogadores" value={config.num_jogadores} onChange={handleChange} />
-                </label>
-                <label>
-                    Nível/Tier:
-                    <input type="text" name="nivel_tier" value={config.nivel_tier} onChange={handleChange} />
-                </label>
-                <label>
-                    Tempo Estimado:
-                    <input type="text" name="tempo_estimado" value={config.tempo_estimado} onChange={handleChange} />
-                </label>
-                <div className="buttons">
-                    <button type="button" onClick={() => onStartChat(config)}>Iniciar Chat Interativo</button>
-                    <button type="button" onClick={() => onGenerateAdventure(config)}>Gerar Aventura Completa</button>
+        <div className="adventure-form-container">
+            <form onSubmit={handleSubmit} className="adventure-form">
+                <h2>Configure sua Aventura</h2>
+                <div className="form-grid">
+                    <label>
+                        Sistema
+                        <input type="text" name="sistema" value={config.sistema} onChange={handleChange} />
+                    </label>
+                    <label>
+                        Gênero/Estilo
+                        <input type="text" name="genero_estilo" value={config.genero_estilo} onChange={handleChange} />
+                    </label>
+                    <label>
+                        Nº de Jogadores
+                        <input type="number" name="num_jogadores" value={config.num_jogadores} onChange={handleChange} min="1" />
+                    </label>
+                    <label>
+                        Nível dos Personagens
+                        <input type="text" name="nivel_tier" value={config.nivel_tier} onChange={handleChange} />
+                    </label>
                 </div>
+                <button type="submit" disabled={isGenerating}>
+                    {isGenerating ? 'Gerando...' : 'Gerar Aventura Completa'}
+                </button>
             </form>
         </div>
     );

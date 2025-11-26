@@ -1,62 +1,29 @@
-// src/App.js
 import React, { useState } from 'react';
-import axios from 'axios';
+import { generateAdventure } from './services/api';
 import AdventureForm from './components/AdventureForm';
-import Chat from './components/Chat';
-import AdventureView from './components/AdventureView';
+import TabbedView from './components/TabbedView';
+import LoadingSpinner from './components/common/LoadingSpinner';
+import ErrorDisplay from './components/common/ErrorDisplay';
 import './App.css';
 
-const isDemoMode = window.location.hostname !== 'localhost';
-
-const mockAdventure = {
-  titulo: "A Tumba do Terror Rastejante (DEMO)",
-  sinopse: "Uma antiga tumba foi descoberta, mas um mal rastejante guarda seus segredos. Esta é uma demonstração estática.",
-  personagens_chave: [
-    { nome: "Elara", aparencia: "Uma exploradora com olhos curiosos.", url_imagem: "https://i.imgur.com/tG3aL6G.png" }
-  ],
-  locais_importantes: [
-    { nome: "A Entrada da Tumba", atmosfera: "Úmida e escura.", url_imagem: "https://i.imgur.com/OplgaB8.png" }
-  ]
-};
-
 function App() {
-    const [sessionId, setSessionId] = useState(null);
-    const [initialResponse, setInitialResponse] = useState('');
     const [adventure, setAdventure] = useState(null);
     const [loading, setLoading] = useState(false);
-
-    const handleStartChat = async (config) => {
-        setLoading(true);
-        setAdventure(null);
-        if (isDemoMode) {
-            setSessionId('demo-session');
-            setInitialResponse('Modo de demonstração: O chat real está desativado.');
-        } else {
-            try {
-                const response = await axios.post('/api/start_chat', config);
-                setSessionId(response.data.session_id);
-                setInitialResponse(response.data.initial_response);
-            } catch (error) {
-                console.error('Error starting chat:', error);
-            }
-        }
-        setLoading(false);
-    };
+    const [error, setError] = useState(null);
 
     const handleGenerateAdventure = async (config) => {
         setLoading(true);
-        setSessionId(null);
-        if (isDemoMode) {
-            setAdventure(mockAdventure);
-        } else {
-            try {
-                const response = await axios.post('/api/generate_adventure', config);
-                setAdventure(response.data);
-            } catch (error) {
-                console.error('Error generating adventure:', error);
-            }
+        setError(null);
+        setAdventure(null);
+        try {
+            const data = await generateAdventure(config);
+            setAdventure(data);
+        } catch (err) {
+            console.error('Error generating adventure:', err);
+            setError('Não foi possível carregar a aventura. Verifique o console para mais detalhes.');
+        } finally {
+            setLoading(false);
         }
-        setLoading(false);
     };
 
     return (
@@ -66,12 +33,16 @@ function App() {
             </header>
             <main>
                 <AdventureForm
-                    onStartChat={handleStartChat}
                     onGenerateAdventure={handleGenerateAdventure}
+                    isGenerating={loading}
                 />
-                {loading && <div className="loading">Gerando...</div>}
-                {sessionId && <Chat sessionId={sessionId} initialResponse={initialResponse} isDemo={isDemoMode} />}
-                {adventure && <AdventureView adventure={adventure} />}
+                {loading && <LoadingSpinner />}
+                <ErrorDisplay message={error} />
+                {adventure && (
+                    <TabbedView
+                        adventure={adventure}
+                    />
+                )}
             </main>
         </div>
     );

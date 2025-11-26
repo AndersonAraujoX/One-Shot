@@ -7,6 +7,7 @@ from google.api_core import exceptions as api_exceptions
 from tenacity import retry, stop_after_attempt, wait_exponential, retry_if_exception_type
 from PIL import Image
 import uuid
+import re
 
 # --- INSTRUÇÃO DE SISTEMA ---
 SYSTEM_INSTRUCTION = """
@@ -170,14 +171,29 @@ def gerar_imagem(prompt: str) -> str:
 def gerar_aventura_batch(**kwargs) -> dict:
     """
     Gera uma aventura completa em modo batch de forma data-driven.
+    Pode gerar um conjunto pré-definido de seções ou um conjunto customizado 
+    passado através de kwargs['secoes'].
     """
     chat = iniciar_chat()
     adventure_data = {}
     
-    comandos_batch = sorted(
-        [cmd for cmd, meta in COMMAND_PROMPTS.items() if meta.get("batch_order")],
-        key=lambda cmd: COMMAND_PROMPTS[cmd]["batch_order"]
-    )
+    secoes_customizadas = kwargs.get("secoes")
+
+    if secoes_customizadas:
+        # Filtra e ordena as seções customizadas que são válidas e têm uma ordem de batch
+        comandos_batch = sorted(
+            [cmd for cmd in secoes_customizadas if cmd in COMMAND_PROMPTS and COMMAND_PROMPTS[cmd].get("batch_order")],
+            key=lambda cmd: COMMAND_PROMPTS[cmd]["batch_order"]
+        )
+        if not comandos_batch:
+            raise ValueError("Nenhuma das seções fornecidas é válida para o modo batch. Seções válidas: " +
+                             ", ".join([k for k, v in COMMAND_PROMPTS.items() if v.get("batch_order")]))
+    else:
+        # Comportamento padrão: pega todas as seções com 'batch_order'
+        comandos_batch = sorted(
+            [cmd for cmd, meta in COMMAND_PROMPTS.items() if meta.get("batch_order")],
+            key=lambda cmd: COMMAND_PROMPTS[cmd]["batch_order"]
+        )
 
     json_commands = ["contexto", "personagens_chave", "locais_importantes"]
 
@@ -195,21 +211,41 @@ def gerar_aventura_batch(**kwargs) -> dict:
             print(response_text)
             print("-----------------------------------------")
             try:
-                # O LLM pode retornar o JSON dentro de um bloco de código markdown
-                clean_response = response_text.strip().replace("```json", "").replace("```", "").strip()
-                data = json.loads(clean_response)
+                json_string = ""
+                # Tenta encontrar JSON dentro de ```json ... ```
+                match = re.search(r"```json\s*(.*?)\s*```", response_text, re.DOTALL)
+                if match:
+                    json_string = match.group(1)
+                else:
+                    # Tenta encontrar JSON dentro de ``` ... ```
+                    match = re.search(r"```\s*(.*?)\s*```", response_text, re.DOTALL)
+                    if match:
+                        json_string = match.group(1)
+                    else:
+                        # Se não encontrou blocos de código, assume que a resposta inteira é JSON
+                        json_string = response_text.strip()
+
+                data = json.loads(json_string)
                 if comando == 'contexto':
                     # Adiciona titulo e sinopse ao nível principal
                     adventure_data.update(data)
                 else:
                     adventure_data[comando] = data
-            except json.JSONDecodeError:
-                print(f"Alerta: Falha ao decodificar JSON para o comando '{comando}'.")
+            except json.JSONDecodeError as e:
+                print(f"Alerta: Falha ao decodificar JSON para o comando '{comando}'. Erro: {e}")
+                print(f"Resposta bruta da IA: \n{response_text[:500]}...") # Imprime os primeiros 500 caracteres para depuração
                 if comando == 'contexto':
                     adventure_data['titulo'] = "Erro na Geração"
                     adventure_data['sinopse'] = "Não foi possível gerar o contexto."
                 else:
                     adventure_data[comando] = [] # Retorna uma lista vazia em caso de falha
+            except Exception as e:
+                print(f"Alerta: Erro inesperado ao processar JSON para o comando '{comando}'. Erro: {e}")
+                if comando == 'contexto':
+                    adventure_data['titulo'] = "Erro na Geração"
+                    adventure_data['sinopse'] = "Não foi possível gerar o contexto."
+                else:
+                    adventure_data[comando] = []
         else:
             adventure_data[comando] = response_text
             
