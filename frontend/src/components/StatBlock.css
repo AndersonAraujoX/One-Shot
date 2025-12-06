@@ -1,0 +1,65 @@
+.stat-block {
+    font-family: 'Noto Sans', 'Open Sans', sans-serif;
+    background: #fdf1dc;
+    padding: 15px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.5);
+    margin-bottom: 20px;
+    border: 1px solid #dcdcdc;
+    color: #58180D; /* D&D Red-Brown */
+}
+
+.stat-block h1 {
+    font-family: 'Libre Baskerville', 'Lora', serif;
+    font-size: 24px;
+    color: #58180D;
+    margin: 0 0 5px 0;
+    font-weight: 700;
+}
+
+.stat-block h2 {
+    font-family: 'Noto Sans', sans-serif;
+    font-style: italic;
+    font-size: 14px;
+    margin: 0;
+    color: #333;
+}
+
+.tapered-rule {
+    display: block;
+    width: 100%;
+    height: 5px;
+    border: none;
+    color: #922610;
+    fill: #922610;
+    margin: 10px 0;
+}
+
+.property-line h4 {
+    display: inline;
+    font-weight: bold;
+    color: #58180D;
+    margin: 0;
+}
+
+.property-line p {
+    display: inline;
+    margin: 0 0 5px 0;
+    color: #333;
+}
+
+/* Print Optimization for Stat Blocks */
+@media print {
+    .stat-block {
+        break-inside: avoid;
+        border: 1px solid #000;
+        box-shadow: none;
+        background: white;
+        color: black;
+    }
+    .tapered-rule {
+        fill: black;
+    }
+    .stat-block h1, .stat-block h4 {
+        color: black;
+    }
+}

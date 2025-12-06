@@ -1,3 +1,42 @@
+/* Global Variables & Themes */
+:root {
+  --bg-color: #282c34;
+  --text-color: white;
+  --card-bg: #3b404b;
+  --accent-color: #61dafb;
+  --button-bg: #61dafb;
+  --button-text: #282c34;
+}
+
+[data-theme='light'] {
+  --bg-color: #f0f2f5;
+  --text-color: #333;
+  --card-bg: #ffffff;
+  --accent-color: #007bff;
+  --button-bg: #007bff;
+  --button-text: white;
+}
+
+[data-theme='fantasy'] {
+  --bg-color: #f4e4bc;
+  --text-color: #4a3b2a;
+  --card-bg: #e6d2a0;
+  --accent-color: #8b4513;
+  --button-bg: #8b4513;
+  --button-text: #f4e4bc;
+  font-family: 'Lora', serif;
+}
+
+[data-theme='cyberpunk'] {
+  --bg-color: #0d0221;
+  --text-color: #00ff41;
+  --card-bg: #1a1a2e;
+  --accent-color: #ff00ff;
+  --button-bg: #ff00ff;
+  --button-text: #0d0221;
+  font-family: 'Courier New', monospace;
+}
+
 body {
   margin: 0;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
@@ -5,6 +44,43 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  transition: background-color 0.3s, color 0.3s;
+}
+
+/* Print Styles */
+@media print {
+  body {
+    background-color: white;
+    color: black;
+  }
+
+  .App-header,
+  .tab-buttons,
+  .actions,
+  .input-area,
+  .spinner-overlay,
+  button {
+    display: none !important;
+  }
+
+  .adventure-section {
+    break-inside: avoid;
+    border: none;
+    box-shadow: none;
+  }
+
+  .card {
+    border: 1px solid #ccc;
+    break-inside: avoid;
+  }
+
+  /* Force two columns for content if possible, or just clean layout */
+  .section-content {
+    column-count: 1;
+    /* Keep simple for now */
+  }
 }
 
 code {

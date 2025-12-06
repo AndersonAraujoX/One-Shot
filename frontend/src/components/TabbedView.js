@@ -1,21 +1,51 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import ReactMarkdown from 'react-markdown';
 import './TabbedView.css';
+import StatBlock from './StatBlock';
 
-const Section = ({ title, content, onCopy }) => (
-    <div className="adventure-section">
-        <div className="section-header">
-            <h2>{title}</h2>
-            <button onClick={onCopy} className="copy-button">Copiar Seção</button>
-        </div>
-        <div className="section-content">
-            {content}
-        </div>
-    </div>
-);
+const Section = ({ title, content, onCopy, onEdit, isEditing, onSave, onCancel }) => {
+    const [editValue, setEditValue] = useState(content);
 
-function TabbedView({ adventure }) {
+    useEffect(() => {
+        setEditValue(content);
+    }, [content]);
+
+    return (
+        <div className="adventure-section">
+            <div className="section-header">
+                <h2>{title}</h2>
+                <div className="actions">
+                    {!isEditing ? (
+                        <>
+                            <button onClick={onCopy} className="copy-button">Copiar</button>
+                            <button onClick={onEdit} className="edit-button">Editar</button>
+                        </>
+                    ) : (
+                        <>
+                            <button onClick={() => onSave(editValue)} className="save-button">Salvar</button>
+                            <button onClick={onCancel} className="cancel-button">Cancelar</button>
+                        </>
+                    )}
+                </div>
+            </div>
+            <div className="section-content">
+                {isEditing ? (
+                    <textarea
+                        value={editValue}
+                        onChange={(e) => setEditValue(e.target.value)}
+                        className="edit-textarea"
+                    />
+                ) : (
+                    typeof content === 'string' ? <ReactMarkdown>{content}</ReactMarkdown> : content
+                )}
+            </div>
+        </div>
+    );
+};
+
+function TabbedView({ adventure, onUpdate }) {
     const [activeTab, setActiveTab] = useState('sinopse');
+    const [editingTab, setEditingTab] = useState(null);
 
     if (!adventure) return null;
 
@@ -51,53 +81,110 @@ function TabbedView({ adventure }) {
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = `${adventure.titulo.replace(/ /g, '_')}.md`;
+        a.download = `${adventure.titulo ? adventure.titulo.replace(/ /g, '_') : 'aventura'}.md`;
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
     };
 
     const handleCopy = (content) => {
-        navigator.clipboard.writeText(content).then(() => {
+        const textToCopy = typeof content === 'string' ? content : JSON.stringify(content, null, 2);
+        navigator.clipboard.writeText(textToCopy).then(() => {
             alert('Conteúdo copiado!');
         }, (err) => {
             console.error('Erro ao copiar: ', err);
         });
     };
 
+    const handleSave = (newContent) => {
+        // If it was a list (like challenges), try to keep it as list if possible, or just save as string
+        // For simplicity, we save as string for now, unless we parse it back.
+        // The backend expects specific formats for some fields.
+        // But since we are editing text, we might just update the text representation.
+
+        // Special handling for array fields if we want to keep them as arrays
+        // For now, let's assume the user edits the raw text and we save it as is.
+        // If the original was an array, we might want to split by newline.
+
+        let contentToSave = newContent;
+        const originalContent = adventure[activeTab];
+
+        if (Array.isArray(originalContent)) {
+            contentToSave = newContent.split('\n').filter(line => line.trim().startsWith('-')).map(line => line.replace(/^- /, '').trim());
+            if (contentToSave.length === 0) contentToSave = newContent.split('\n').filter(l => l.trim());
+        }
+
+        onUpdate(activeTab, contentToSave);
+        setEditingTab(null);
+    };
+
     const getTabContent = (tab) => {
         switch (tab) {
             case 'sinopse': return adventure.sinopse;
-            case 'personagens': return adventure.personagens_chave.map(p => `### ${p.nome}\n**Aparência:** ${p.aparencia}`).join('\n\n');
-            case 'locais': return adventure.locais_importantes.map(l => `### ${l.nome}\n**Atmosfera:** ${l.atmosfera}`).join('\n\n');
-            default:
-                const content = adventure[tab];
-                if (Array.isArray(content)) return content.map(item => `- ${item}`).join('\n');
-                return content;
+            case 'personagens': return adventure.personagens_chave; // Special rendering
+            case 'locais': return adventure.locais_importantes; // Special rendering
+            default: return adventure[tab];
         }
     };
-    
+
     const renderContent = () => {
-        const rawContent = getTabContent(activeTab);
+        const content = getTabContent(activeTab);
         const title = activeTab === 'sinopse' ? adventure.titulo : activeTab.replace(/_/g, ' ');
+        const isEditing = editingTab === activeTab;
+
+        // Special handling for complex objects like Characters and Locations
+        if ((activeTab === 'personagens' || activeTab === 'locais') && !isEditing) {
+            return (
+                <div className="adventure-section">
+                    <div className="section-header">
+                        <h2>{title}</h2>
+                        {/* Editing complex objects is harder, let's skip for now or implement JSON edit */}
+                        <button onClick={() => handleCopy(JSON.stringify(content, null, 2))} className="copy-button">Copiar JSON</button>
+                    </div>
+                    <div className="section-content cards-container">
+                        {(content || []).map((item, idx) => (
+                            <div key={idx} className="card-wrapper">
+                                {activeTab === 'personagens' ? (
+                                    <StatBlock
+                                        name={item.nome}
+                                        description={item.aparencia}
+                                        stats={item.estatisticas || item.aparencia} // Fallback if no stats
+                                    />
+                                ) : (
+                                    <div className="card">
+                                        <h3>{item.nome}</h3>
+                                        <ReactMarkdown>{item.aparencia || item.atmosfera}</ReactMarkdown>
+                                        {item.url_imagem && <img src={item.url_imagem} alt={item.nome} />}
+                                    </div>
+                                )}
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            );
+        }
+
+        // Prepare content for display/edit
+        let displayContent = content;
+        if (Array.isArray(content)) {
+            displayContent = content.map(item => `- ${item}`).join('\n');
+        }
 
         return (
-            <Section title={title} onCopy={() => handleCopy(rawContent)} content={
-                activeTab === 'personagens' || activeTab === 'locais'
-                    ? (adventure[activeTab === 'personagens' ? 'personagens_chave' : 'locais_importantes'] || []).map(item => (
-                        <div key={item.nome} className="card">
-                            <h3>{item.nome}</h3>
-                            <ReactMarkdown>{item.aparencia || item.atmosfera}</ReactMarkdown>
-                            {item.url_imagem && <img src={item.url_imagem} alt={item.nome} />}
-                        </div>
-                    ))
-                    : <ReactMarkdown>{rawContent}</ReactMarkdown>
-            } />
+            <Section
+                title={title}
+                content={displayContent}
+                onCopy={() => handleCopy(displayContent)}
+                onEdit={() => setEditingTab(activeTab)}
+                isEditing={isEditing}
+                onSave={handleSave}
+                onCancel={() => setEditingTab(null)}
+            />
         );
     };
 
     const sections = [
-        'sinopse', 
+        'sinopse',
         ...Object.keys(adventure).filter(k => k !== 'titulo' && k !== 'sinopse' && k !== 'personagens_chave' && k !== 'locais_importantes')
     ];
     if (adventure.personagens_chave) sections.splice(1, 0, 'personagens');
@@ -111,7 +198,7 @@ function TabbedView({ adventure }) {
                     <button
                         key={section}
                         className={activeTab === section ? 'active' : ''}
-                        onClick={() => setActiveTab(section)}
+                        onClick={() => { setActiveTab(section); setEditingTab(null); }}
                     >
                         {section.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}
                     </button>

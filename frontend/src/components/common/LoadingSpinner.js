@@ -2,10 +2,10 @@
 import React from 'react';
 import './LoadingSpinner.css';
 
-const LoadingSpinner = () => (
+const LoadingSpinner = ({ message }) => (
   <div className="spinner-overlay">
     <div className="spinner-container"></div>
-    <p>Gerando sua aventura...</p>
+    <p>{message || "Gerando sua aventura..."}</p>
   </div>
 );
 

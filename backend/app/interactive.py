@@ -8,7 +8,7 @@ from rich.prompt import Prompt
 from rich.text import Text
 from rich.live import Live
 from rich.spinner import Spinner
-import google.generativeai as genai
+from google.generativeai import types
 
 from app.chat import iniciar_chat, enviar_mensagem, COMMAND_PROMPTS, ContentGenerationError, gerar_aventura_batch
 
@@ -119,7 +119,7 @@ def iniciar_sessao_criativa(**kwargs):
                         history_loaded = json.load(f)
                     
                     chat = iniciar_chat()
-                    chat.history = [genai.types.Content(parts=[part['text'] for part in msg['parts']], role=msg['role']) for msg in history_loaded]
+                    chat.history = [types.Content(parts=[types.Part.from_text(part['text']) for part in msg['parts']], role=msg['role']) for msg in history_loaded]
 
                     console.print(Panel(f"Sessão carregada com sucesso de [bold green]{filename}[/bold green]!", title="Carregado!"))
                     console.print(Panel(chat.history[-1].parts[0].text, title="[bold yellow]🤖 Última Mensagem da IA[/bold yellow]", border_style="yellow"))

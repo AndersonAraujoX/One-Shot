@@ -9,7 +9,18 @@ def test_gerar_aventura_batch_executa_comandos_ordenados(mock_enviar, mock_inici
     # Configura o mock para o chat
     mock_chat = MagicMock()
     mock_iniciar.return_value = mock_chat
-    mock_enviar.return_value = "Conteúdo gerado"
+
+    # Define um side_effect para o mock de enviar_mensagem
+    def mock_enviar_side_effect(chat, prompt):
+        if COMMAND_PROMPTS["contexto"]["prompt"] in prompt:
+            return '{"titulo": "Título Teste", "sinopse": "Sinopse Teste"}'
+        if COMMAND_PROMPTS["personagens_chave"]["prompt"] in prompt:
+            return '[{"nome": "NPC Teste", "aparencia": "Aparência Teste", "url_imagem": ""}]'
+        if COMMAND_PROMPTS["locais_importantes"]["prompt"] in prompt:
+            return '[{"nome": "Local Teste", "atmosfera": "Atmosfera Teste", "url_imagem": ""}]'
+        return "Conteúdo gerado"
+
+    mock_enviar.side_effect = mock_enviar_side_effect
 
     # Chama a função
     adventure_data = gerar_aventura_batch(gerar_personagens=True, sistema="D&D 5e", num_jogadores=4, nivel_tier="1")
@@ -23,8 +34,13 @@ def test_gerar_aventura_batch_executa_comandos_ordenados(mock_enviar, mock_inici
     assert mock_enviar.call_count == len(comandos_esperados)
     
     # Verifica as chaves no dicionário retornado
-    for cmd in comandos_esperados:
-        assert cmd in adventure_data
+    assert "titulo" in adventure_data
+    assert "sinopse" in adventure_data
+    assert "personagens_chave" in adventure_data
+    assert "locais_importantes" in adventure_data
+    assert adventure_data["titulo"] == "Título Teste"
+    assert len(adventure_data["personagens_chave"]) == 1
+    assert len(adventure_data["locais_importantes"]) == 1
 
 @patch('app.chat.iniciar_chat')
 @patch('app.chat.enviar_mensagem')
