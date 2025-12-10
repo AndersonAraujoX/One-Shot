@@ -52,24 +52,42 @@ function TabbedView({ adventure, onUpdate }) {
     const adventureAsMarkdown = () => {
         let md = `# ${adventure.titulo}\n\n`;
         md += `## Sinopse\n\n${adventure.sinopse}\n\n`;
-        if (adventure.ganchos) md += `## Ganchos da Trama\n\n${adventure.ganchos.map(g => `- ${g}`).join('\n')}\n\n`;
+        if (adventure.ganchos) {
+            md += `## Ganchos da Trama\n\n`;
+            md += Array.isArray(adventure.ganchos)
+                ? `${adventure.ganchos.map(g => `- ${g}`).join('\n')}\n\n`
+                : `${adventure.ganchos}\n\n`;
+        }
         if (adventure.personagens_chave) {
             md += `## Personagens Chave\n\n`;
-            adventure.personagens_chave.forEach(p => {
-                md += `### ${p.nome}\n\n`;
-                md += `**Aparência:** ${p.aparencia}\n\n`;
-                if (p.url_imagem) md += `![${p.nome}](${p.url_imagem})\n\n`;
-            });
+            if (Array.isArray(adventure.personagens_chave)) {
+                adventure.personagens_chave.forEach(p => {
+                    md += `### ${p.nome}\n\n`;
+                    md += `**Aparência:** ${p.aparencia}\n\n`;
+                    if (p.url_imagem) md += `![${p.nome}](${p.url_imagem})\n\n`;
+                });
+            } else {
+                md += `${typeof adventure.personagens_chave === 'string' ? adventure.personagens_chave : JSON.stringify(adventure.personagens_chave, null, 2)}\n\n`;
+            }
         }
         if (adventure.locais_importantes) {
             md += `## Locais Importantes\n\n`;
-            adventure.locais_importantes.forEach(l => {
-                md += `### ${l.nome}\n\n`;
-                md += `**Atmosfera:** ${l.atmosfera}\n\n`;
-                if (l.url_imagem) md += `![${l.nome}](${l.url_imagem})\n\n`;
-            });
+            if (Array.isArray(adventure.locais_importantes)) {
+                adventure.locais_importantes.forEach(l => {
+                    md += `### ${l.nome}\n\n`;
+                    md += `**Atmosfera:** ${l.atmosfera}\n\n`;
+                    if (l.url_imagem) md += `![${l.nome}](${l.url_imagem})\n\n`;
+                });
+            } else {
+                md += `${typeof adventure.locais_importantes === 'string' ? adventure.locais_importantes : JSON.stringify(adventure.locais_importantes, null, 2)}\n\n`;
+            }
         }
-        if (adventure.desafios) md += `## Desafios\n\n${adventure.desafios.map(d => `- ${d}`).join('\n')}\n\n`;
+        if (adventure.desafios) {
+            md += `## Desafios\n\n`;
+            md += Array.isArray(adventure.desafios)
+                ? `${adventure.desafios.map(d => `- ${d}`).join('\n')}\n\n`
+                : `${adventure.desafios}\n\n`;
+        }
         if (adventure.resumo_da_aventura) md += `## Resumo da Aventura\n\n${adventure.resumo_da_aventura}\n\n`;
 
         return md;
@@ -142,23 +160,29 @@ function TabbedView({ adventure, onUpdate }) {
                         <button onClick={() => handleCopy(JSON.stringify(content, null, 2))} className="copy-button">Copiar JSON</button>
                     </div>
                     <div className="section-content cards-container">
-                        {(content || []).map((item, idx) => (
-                            <div key={idx} className="card-wrapper">
-                                {activeTab === 'personagens' ? (
-                                    <StatBlock
-                                        name={item.nome}
-                                        description={item.aparencia}
-                                        stats={item.estatisticas || item.aparencia} // Fallback if no stats
-                                    />
-                                ) : (
-                                    <div className="card">
-                                        <h3>{item.nome}</h3>
-                                        <ReactMarkdown>{item.aparencia || item.atmosfera}</ReactMarkdown>
-                                        {item.url_imagem && <img src={item.url_imagem} alt={item.nome} />}
-                                    </div>
-                                )}
+                        {Array.isArray(content) ? (
+                            content.map((item, idx) => (
+                                <div key={idx} className="card-wrapper">
+                                    {activeTab === 'personagens' ? (
+                                        <StatBlock
+                                            name={item.nome}
+                                            description={item.aparencia}
+                                            stats={item.estatisticas || item.aparencia}
+                                        />
+                                    ) : (
+                                        <div className="card">
+                                            <h3>{item.nome}</h3>
+                                            <ReactMarkdown>{item.aparencia || item.atmosfera}</ReactMarkdown>
+                                            {item.url_imagem && <img src={item.url_imagem} alt={item.nome} />}
+                                        </div>
+                                    )}
+                                </div>
+                            ))
+                        ) : (
+                            <div className="card">
+                                <ReactMarkdown>{typeof content === 'string' ? content : JSON.stringify(content)}</ReactMarkdown>
                             </div>
-                        ))}
+                        )}
                     </div>
                 </div>
             );

@@ -1,0 +1,29 @@
+# Prompt de Teste Abrangente para One-Shot RPG
+
+Este prompt foi desenhado para testar a capacidade da IA de seguir instruções complexas, regras da casa e formatação específica.
+
+**Copie e cole o texto abaixo no campo "Regras da Casa / Contexto Adicional":**
+
+---
+
+**Regras do Cenário (Homebrew):**
+1.  **Mundo de Cristal**: O mundo é feito de ilhas flutuantes de cristal. Não existe "chão" ou "oceano", apenas um abismo infinito abaixo.
+2.  **Magia Instável**: Toda vez que um personagem usa magia, role um d6. Se cair 1, a magia falha e causa uma explosão de cor (efeito visual apenas).
+3.  **Tecnologia Perdida**: Existem ruínas de uma civilização antiga que usava "vapor e engrenagens" (Steampunk). Os jogadores podem encontrar artefatos dessa era.
+4.  **Inimigos de Vidro**: Os principais inimigos são constructos de vidro que se quebram ao morrer, causando dano em área.
+
+**Instruções de Estilo:**
+-   O tom deve ser de "Maravilha e Perigo".
+-   Descreva as cores dos cristais em detalhes.
+-   O vilão deve ser um "Artífice do Abismo" que quer derrubar as ilhas.
+
+**Requisitos Especiais:**
+-   Gere um NPC aliado que seja um Golem de Vapor.
+-   Um dos locais deve ser uma "Catedral Invertida" pendurada sob uma ilha.
+
+---
+
+**Configuração Sugerida no Formulário:**
+-   **Sistema**: Genérico (ou D&D 5e adaptado)
+-   **Gênero**: Fantasia Científica / Steampunk
+-   **Temperatura**: 0.8 (Alta Criatividade)

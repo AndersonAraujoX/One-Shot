@@ -22,19 +22,25 @@ function AdventureList({ onSelectAdventure, onNewAdventure }) {
     if (loading) return <div>Carregando aventuras...</div>;
 
     return (
-        <div className="adventure-list">
-            <h2>Aventuras Salvas</h2>
-            <button onClick={onNewAdventure} className="btn-primary">Nova Aventura</button>
+        <div className="adventure-list-view">
+            <div className="list-header">
+                <h2>Aventuras Salvas</h2>
+                <button onClick={onNewAdventure} className="btn-primary">+ Nova Aventura</button>
+            </div>
             <div className="list-container">
                 {adventures.length === 0 ? (
-                    <p>Nenhuma aventura encontrada.</p>
+                    <div className="empty-state">
+                        <p>Nenhuma aventura encontrada. Comece criando uma!</p>
+                    </div>
                 ) : (
                     <ul>
                         {adventures.map(adv => (
                             <li key={adv.id} onClick={() => onSelectAdventure(adv)} className="adventure-item">
                                 <strong>{adv.title || "Sem Título"}</strong>
-                                <span className="system-tag">{adv.system}</span>
-                                <span className="date">{new Date(adv.created_at).toLocaleDateString()}</span>
+                                <div className="tags">
+                                    <span className="system-tag">{adv.system}</span>
+                                </div>
+                                <span className="date">Criado em: {new Date(adv.created_at).toLocaleDateString()}</span>
                             </li>
                         ))}
                     </ul>

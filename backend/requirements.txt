@@ -7,3 +7,5 @@ uvicorn
 Pillow
 python-dotenv
 reportlab
+sqlalchemy
+google-cloud-aiplatform

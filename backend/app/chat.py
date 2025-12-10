@@ -45,13 +45,13 @@ COMMAND_PROMPTS = {
         "batch_order": 3
     },
     "personagens_chave": {
-        "prompt": "Ótimo. Descreva agora os 'NPCs Principais', incluindo o vilão e possíveis aliados. Formate a resposta como um array JSON, onde cada objeto representa um NPC e tem as chaves 'nome' (string), 'aparencia' (string), e 'url_imagem' (string, uma URL de imagem placeholder).",
+        "prompt": "Ótimo. Descreva agora os 'NPCs Principais', incluindo o vilão e possíveis aliados. Formate a resposta como um array JSON, onde cada objeto representa um NPC e tem as chaves 'nome' (string), 'aparencia' (string), e 'url_imagem' (string, use 'https://placehold.co/400' como default).",
         "description": "Cria os NPCs principais da aventura.",
         "batch_order": 4,
         "json_mode": True
     },
     "locais_importantes": {
-        "prompt": "Agora, usando o contexto e os personagens que você acabou de criar, descreva os 'Locais Importantes' onde a aventura se desenrolará. Garanta que os locais estejam conectados à trama do vilão. Formate a resposta como um array JSON, onde cada objeto representa um local e tem as chaves 'nome' (string), 'atmosfera' (string), e 'url_imagem' (string, uma URL de imagem placeholder).",
+        "prompt": "Agora, usando o contexto e os personagens que você acabou de criar, descreva os 'Locais Importantes' onde a aventura se desenrolará. Garanta que os locais estejam conectados à trama do vilão. Formate a resposta como um array JSON, onde cada objeto representa um local e tem as chaves 'nome' (string), 'atmosfera' (string), e 'url_imagem' (string, use 'https://placehold.co/600x400' como default).",
         "description": "Descreve os locais importantes.",
         "batch_order": 5,
         "json_mode": True
@@ -158,7 +158,7 @@ def iniciar_chat(json_mode=False, sistema="Genérico", genero="Fantasia", temper
     generation_config["temperature"] = temperature
 
     model = genai.GenerativeModel(
-        model_name="gemini-2.5-pro",
+        model_name="gemini-1.5-flash",
         system_instruction=dynamic_instruction,
         generation_config=generation_config
     )
