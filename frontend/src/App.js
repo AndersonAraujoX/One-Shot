@@ -5,6 +5,7 @@ import TabbedView from './components/TabbedView';
 import AdventureList from './components/AdventureList';
 import NPCChat from './components/NPCChat';
 import LoadingSpinner from './components/common/LoadingSpinner';
+import ProgressBar from './components/common/ProgressBar';
 import ErrorDisplay from './components/common/ErrorDisplay';
 import './App.css';
 
@@ -12,12 +13,14 @@ function App() {
     const [adventure, setAdventure] = useState(null);
     const [loading, setLoading] = useState(false);
     const [loadingMessage, setLoadingMessage] = useState('');
+    const [progress, setProgress] = useState(0); // Novo estado de progresso
     const [error, setError] = useState(null);
     const [view, setView] = useState('list'); // 'list', 'create', 'view', 'chat'
 
     const handleGenerateAdventure = async (config) => {
         setLoading(true);
         setLoadingMessage('Iniciando geração...');
+        setProgress(5); // Inicia com 5%
         setError(null);
         setAdventure({}); // Start with empty object
         setView('view');
@@ -27,6 +30,10 @@ function App() {
             (chunk) => {
                 if (chunk.type === 'progress') {
                     setLoadingMessage(chunk.message);
+                    // Atualiza progresso baseado na mensagem (estimativa)
+                    if (chunk.message.includes("Arte Conceitual")) setProgress(15);
+                    if (chunk.message.includes("Mundo")) setProgress(30);
+                    if (chunk.message.includes("Trama")) setProgress(60);
                 } else if (chunk.type === 'data') {
                     setAdventure(prev => {
                         const newData = { ...prev };
@@ -36,6 +43,12 @@ function App() {
                         newData[chunk.section] = chunk.content;
                         return newData;
                     });
+
+                    // Incremento suave de progresso conforme dados chegam
+                    if (chunk.section === 'gerar_imagem') setProgress(25);
+                    if (chunk.section === 'locais_importantes') setProgress(55); // Fim do Setup
+                    if (chunk.section === 'resumo') setProgress(95); // Fim da Trama
+
                 } else if (chunk.type === 'error') {
                     console.error("Stream error:", chunk.message);
                     setError(chunk.message);
@@ -49,6 +62,7 @@ function App() {
             () => {
                 setLoading(false);
                 setLoadingMessage('');
+                setProgress(100);
             }
         );
     };
@@ -105,14 +119,22 @@ function App() {
                             onGenerateAdventure={handleGenerateAdventure}
                             isGenerating={loading}
                         />
-                        {loading && <LoadingSpinner message={loadingMessage} />}
+                        {loading && (
+                            <div className="loading-container">
+                                <ProgressBar progress={progress} message={loadingMessage} />
+                            </div>
+                        )}
                         <ErrorDisplay message={error} />
                     </>
                 )}
 
                 {view === 'view' && adventure && (
                     <>
-                        {loading && <div className="streaming-indicator">Gerando: {loadingMessage}...</div>}
+                        {loading && (
+                            <div className="streaming-indicator">
+                                <ProgressBar progress={progress} message={`Gerando: ${loadingMessage}`} />
+                            </div>
+                        )}
                         <TabbedView adventure={adventure} onUpdate={handleUpdateAdventure} />
                     </>
                 )}
