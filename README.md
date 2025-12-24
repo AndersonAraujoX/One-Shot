@@ -1,106 +1,72 @@
-    ```
+# 🎲 Gerador de One-Shots de RPG
 
-2.  **Configure sua API Key:**
-    - Renomeie o arquivo `.env.example` para `.env`.
-    - Abra o arquivo `.env` e insira sua chave da API do Google Gemini na variável `GEMINI_API_KEY`.
+![Python Version](https://img.shields.io/badge/python-3.10%2B-blue?style=for-the-badge&logo=python)
+![FastAPI](https://img.shields.io/badge/FastAPI-005571?style=for-the-badge&logo=fastapi)
+![React](https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)
+![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/AndersonAraujoX/One-Shot/ci.yml?style=for-the-badge&label=Tests)
 
-## Como Usar (CLI)
+> Uma ferramenta alimentada por **IA Generativa (Google Gemini)** para criar aventuras de RPG "one-shot" completas, com mapas, personagens e trama, prontas para jogar em minutos.
 
-Execute o script `main.py` a partir do diretório `app` com os parâmetros desejados.
+## ✨ Funcionalidades
 
-**Exemplo:**
+- **Criação Assistida**: Defina sistema, gênero, nível e deixe a IA criar o resto.
+- **Interface Web Moderna**: Frontend em React para uma experiência de usuário fluida.
+- **Modo CLI**: Uso via linha de comando para automação em lote.
+- **Geração de Imagens**: Criação automática de mapas e retratos de personagens.
+- **Exportação**: Baixe suas aventuras em Markdown, JSON ou ZIP.
 
-```bash
-python app/main.py --sistema "D&D 5e" --genero "Fantasia Sombria" --jogadores "4" --tempo "3-4 horas" --nivel "Nível 3" --output "minha_aventura.md"
-```
+---
 
-Use `python app/main.py --help` para ver todas as opções disponíveis.
-
-## GitHub Actions (CI/CD)
-
-Este projeto está configurado para rodar no GitHub Actions!
-
-### 1. Configuração de Secrets
-Para que os workflows funcionem, você precisa adicionar sua chave da API como um Secret no repositório:
-1. Vá em **Settings** > **Secrets and variables** > **Actions**.
-2. Clique em **New repository secret**.
-3. Nome: `GEMINI_API_KEY`
-4. Valor: (Sua chave da API do Google Gemini)
-
-### 2. Workflows Disponíveis
-
-- **CI (Integração Contínua)**: Roda os testes automaticamente a cada `push` ou `pull_request` na branch `main`.
-- **Gerar Aventura**: Execução manual para gerar one-shots na nuvem.
-    1. Vá na aba **Actions**.
-    2. Selecione o workflow **Gerar Aventura**.
-    3. Clique em **Run workflow**.
-    4. Escolha os parâmetros (Sistema, Gênero, Nível, etc.).
-    5. Após a conclusão, baixe o arquivo `.zip` ou `.md` nos **Artifacts** da execução.
-=======
-# Gerador de One-Shots de RPG
-
-Este projeto utiliza IA Generativa para criar aventuras de RPG "one-shot" prontas para jogar.
-
-## Como Usar a Interface Web
-
-Esta é a forma recomendada de usar a aplicação.
+## 🚀 Como Usar a Interface Web (Recomendado)
 
 ### 1. Iniciar o Backend
-
 Navegue até a pasta `backend` e inicie o servidor FastAPI:
 
 ```bash
 cd backend
+pip install -r requirements.txt
 uvicorn app.api:app --reload
 ```
-
-O servidor estará rodando em `http://127.0.0.1:8000`.
+*O servidor estará rodando em `http://127.0.0.1:8000`.*
 
 ### 2. Iniciar o Frontend
-
 Em outro terminal, navegue até a pasta `frontend` e inicie a aplicação React:
 
 ```bash
 cd frontend
+npm install
 npm start
 ```
+*Acesse a aplicação em `http://localhost:3000`.*
 
-A interface web estará acessível em `http://localhost:3000`.
+---
 
-## Como Usar (CLI - Legado)
+## 🛠️ Como Usar (CLI)
 
-A interface de linha de comando ainda está disponível, mas a interface web é a forma preferida de interação.
+Se preferir usar o terminal:
 
-### Configuração
+1.  **Configure sua API Key:**
+    - Crie um arquivo `.env` na pasta `backend`.
+    - Adicione: `GEMINI_API_KEY=sua_chave_aqui`
 
-1.  **Instale as dependências:**
+2.  **Execute:**
     ```bash
-    pip install -r backend/requirements.txt
+    cd backend
+    python -m app.main --sistema "D&D 5e" --genero "Cyberpunk" --jogadores 4
     ```
 
-2.  **Configure sua API Key:**
-    - Crie um arquivo `.env` na pasta `backend`.
-    - Abra o arquivo `.env` e insira sua chave da API do Google Gemini na variável `GEMINI_API_KEY`.
+---
 
-### Execução
+## 🤖 GitHub Actions (CI/CD)
 
-Execute o módulo `app.main` a partir do diretório `backend` com os parâmetros desejados.
+Este projeto utiliza automação do GitHub para testes e geração na nuvem.
 
-**Modo Interativo:**
+### Configuração
+Adicione o Secret `GEMINI_API_KEY` em **Settings > Secrets and variables > Actions**.
 
-```bash
-python3 -m app.main --sistema "D&D 5e" --genero "Fantasia Sombria" --jogadores 4 --nivel "Nível 3"
-```
+### Workflows
+- **CI**: Roda testes automaticamente a cada push.
+- **Gerar Aventura**: Vá na aba **Actions**, selecione o workflow e gere aventuras sem instalar nada localmente!
 
-**Modo Batch:**
-
-```bash
-python3 -m app.main --sistema "D&D 5e" --genero "Fantasia Sombria" --jogadores 4 --nivel "Nível 3" --batch --output "minha_aventura"
-```
-
-### Ajuda
-
-```bash
-python3 -m app.main --help
-```
->>>>>>> afd8acfc6d3a2623e8f607faadffcddecc9fcb9e
+---
+*Desenvolvido com ❤️ e IA.*
