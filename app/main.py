@@ -6,7 +6,8 @@ from dotenv import load_dotenv
 load_dotenv()
 
 import click
-from app.chat import iniciar_sessao_criativa, gerar_aventura_completa
+from app.interactive import iniciar_sessao_criativa
+from app.batch import gerar_aventura_completa
 
 @click.command()
 # Parâmetros para definir a base da aventura
@@ -19,9 +20,11 @@ from app.chat import iniciar_sessao_criativa, gerar_aventura_completa
 # Flags para controlar o modo de execução
 @click.option('--batch', 'modo_batch', is_flag=True, help='Ativa o modo de geração completa sem interação.')
 @click.option('--personagens', 'gerar_personagens', is_flag=True, help='(Modo Batch) Inclui a geração de personagens na aventura completa.')
-@click.option('--output', 'output_file', help='(Modo Batch) Arquivo Markdown para salvar a aventura completa.')
+@click.option('--output', 'output_file', help='(Modo Batch) Arquivo para salvar a aventura completa (extensão será adicionada automaticamente).')
+@click.option('--output-format', type=click.Choice(['markdown', 'json', 'yaml']), default='markdown', show_default=True, help='(Modo Batch) Formato de saída da aventura completa.')
+@click.option('--zip', 'zip_output', is_flag=True, help='(Modo Batch) Salva a aventura e as imagens em um arquivo .zip.')
 
-def cli(sistema, genero_estilo, num_jogadores, nivel_tier, tempo_estimado, modo_batch, gerar_personagens, output_file):
+def cli(sistema, genero_estilo, num_jogadores, nivel_tier, tempo_estimado, modo_batch, gerar_personagens, output_file, output_format, zip_output):
     """
     Assistente de Criação de RPG: uma ferramenta para gerar one-shots de forma colaborativa ou automática.
     """
@@ -37,7 +40,9 @@ def cli(sistema, genero_estilo, num_jogadores, nivel_tier, tempo_estimado, modo_
     if modo_batch:
         # Adiciona as opções específicas do modo batch ao dicionário de configuração
         config["output_file"] = output_file
+        config["output_format"] = output_format
         config["gerar_personagens"] = gerar_personagens
+        config["zip_output"] = zip_output
         
         gerar_aventura_completa(**config)
     else:

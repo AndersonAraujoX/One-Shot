@@ -1,0 +1,76 @@
+name: Gerar Aventura
+
+on:
+  workflow_dispatch:
+    inputs:
+      sistema:
+        description: 'Sistema de RPG'
+        required: true
+        default: 'D&D 5e'
+      genero:
+        description: 'Gênero/Estilo'
+        required: true
+        default: 'Fantasia Sombria'
+      jogadores:
+        description: 'Número de Jogadores'
+        required: true
+        default: '4'
+      nivel:
+        description: 'Nível/Tier'
+        required: true
+        default: 'Nível 3'
+      tempo:
+        description: 'Tempo Estimado'
+        required: true
+        default: '3-4 horas'
+      gerar_personagens:
+        description: 'Gerar Personagens?'
+        type: boolean
+        default: true
+      output_format:
+        description: 'Formato de Saída'
+        type: choice
+        options: 
+        - markdown
+        - json
+        - yaml
+        default: 'markdown'
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Set up Python 3.10
+      uses: actions/setup-python@v4
+      with:
+        python-version: "3.10"
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+
+    - name: Run Generator
+      env:
+        GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+      run: |
+        # Monta a string de argumentos
+        ARGS="--sistema '${{ inputs.sistema }}' --genero '${{ inputs.genero }}' --jogadores '${{ inputs.jogadores }}' --nivel '${{ inputs.nivel }}' --tempo '${{ inputs.tempo }}' --batch --zip --output aventura_gerada"
+        
+        if [ "${{ inputs.gerar_personagens }}" = "true" ]; then
+          ARGS="$ARGS --personagens"
+        fi
+
+        ARGS="$ARGS --output-format ${{ inputs.output_format }}"
+
+        echo "Running: python -m app.main $ARGS"
+        python -m app.main $ARGS
+
+    - name: Upload Adventure Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: aventura-gerada
+        path: aventura_gerada.zip
+        retention-days: 5

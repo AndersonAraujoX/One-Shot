@@ -1,0 +1,28 @@
+{
+  "system_instruction": "# Você é um Mestre de RPG (Game Master) experiente e criativo. Sua função é auxiliar na criação colaborativa de uma aventura de RPG one-shot, garantindo consistência narrativa e respondendo aos comandos de forma concisa e útil. Mantenha o tom engajador e focado na criação da aventura. Evite excesso de floreios ou conversas que não contribuam diretamente para a construção da aventura.",
+  "command_prompts": {
+    "setup": "Vamos alterar os parâmetros iniciais da aventura. Por favor, aguarde as novas instruções.",
+    "contexto": "Baseado em todo o nosso histórico de conversa até agora, gere o 'Contexto (Background)' e a 'Sinopse' para esta aventura.",
+    "ganchos": "Excelente. Agora, baseado em todo o histórico, gere os 'Ganchos da Trama' para iniciar a aventura.",
+    "personagens": "Ótimo. Agora, gere {num_jogadores} personagens de jogador prontos para esta aventura, no sistema {sistema} e nível {nivel_tier}. Para cada um, detalhe: Nome, Raça/Origem, Classe/Arquétipo, um Background conciso, Personalidade, um Objetivo Pessoal e sugestões de Atributos e Equipamentos iniciais.",
+    "npcs_principais": "Ótimo. Descreva agora os 'NPCs Principais', incluindo o vilão e possíveis aliados, conectando-os à história.",
+    "locais": "Descreva os 'Locais Importantes' onde a aventura se desenrolará, dando vida ao cenário.",
+    "desafios": "Com base na trama e nos locais, gere os 'Desafios', como combates, quebra-cabeças ou interações sociais.",
+    "ato1": "Perfeito. Com base no que estabelecemos, gere o 'Ato 1: A Introdução', onde os jogadores se envolvem com a trama.",
+    "ato2": "Continuando nossa história, gere o 'Ato 2: A Complicação', o núcleo da investigação ou exploração.",
+    "ato3": "Vamos avançar. Gere o 'Ato 3: O Ponto de Virada', um momento que muda a dinâmica da aventura.",
+    "ato4": "Estamos chegando ao clímax. Gere o 'Ato 4: O Clímax', o confronto final ou a resolução do conflito principal.",
+    "ato5": "Para finalizar, gere o 'Ato 5: A Resolução', descrevendo as consequências e o que acontece após o clímax.",
+    "resumo": "Por favor, gere um resumo conciso de toda a aventura que criamos até agora, organizando os pontos principais.",
+    "cenario": "Baseado nos locais e desafios, gere 3 prompts de texto para um gerador de imagens de IA criar mapas de batalha 2D, estilo top-down, para os encontros mais prováveis.",
+    "imagem": "Gere uma imagem baseada na seguinte descrição: "
+  },
+  "setup_prompt_template": "Você está criando uma aventura de RPG one-shot com os seguintes parâmetros:\nSistema: {sistema}\nGênero/Estilo: {genero_estilo}\nNúmero de Jogadores: {num_jogadores}\nNível/Tier dos Personagens: {nivel_tier}\nTempo Estimado: {tempo_estimado}\n\nCom base nisso, gere diretamente o 'Contexto (Background)' e a 'Sinopse' para uma aventura que se encaixe nesses parâmetros.",
+  "character_creation_prompts": {
+    "base": "Baseado no conceito '{conceito}', sugira um Nome, Raça e Classe para um personagem de {sistema} {nivel_tier}. Responda apenas com 'Nome: [sugestão]\nRaça: [sugestão]\nClasse: [sugestão]'.",
+    "background": "Crie um background conciso (um parágrafo) para um(a) '{raca} {classe}' chamado(a) '{nome}' com o conceito inicial de '{conceito}'. Leve em conta o contexto da nossa aventura.",
+    "personality": "Sugira traços de Personalidade, Ideais, Vínculos, Defeitos e um Objetivo Pessoal para '{nome}', nosso(a) '{raca} {classe}' com o background: '{background}'.",
+    "final": "Para nosso(a) '{raca} {classe}' de {nivel_tier} chamado(a) '{nome}', sugira valores de atributos principais e equipamentos iniciais relevantes para o sistema {sistema}.",
+    "acknowledgement": "Criei este personagem: {personagem_atual}. Continue a criação da aventura levando este personagem em consideração."
+  }
+}

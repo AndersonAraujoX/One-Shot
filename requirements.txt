@@ -1,5 +1,9 @@
 click
 python-dotenv
 google-generativeai
+Pillow
+PyYAML
+tenacity
 # fastapi
 # uvicorn
+pytest
