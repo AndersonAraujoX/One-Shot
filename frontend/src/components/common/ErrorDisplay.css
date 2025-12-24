@@ -1,0 +1,35 @@
+/* src/components/common/ErrorDisplay.css */
+.error-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1001;
+}
+
+.error-box {
+  background-color: #fff;
+  padding: 25px 30px;
+  border-radius: 8px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  text-align: center;
+  max-width: 400px;
+  border-top: 5px solid #d9534f; /* Vermelho para indicar erro */
+}
+
+.error-box h4 {
+  margin: 0 0 10px;
+  color: #d9534f;
+  font-size: 1.5rem;
+}
+
+.error-box p {
+  margin: 0;
+  color: #333;
+  font-size: 1rem;
+}

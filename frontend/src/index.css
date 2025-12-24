@@ -1,0 +1,614 @@
+/* Global Variables & Themes */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Cinzel:wght@700&family=Orbitron:wght@700&display=swap');
+
+:root {
+  --bg-gradient: linear-gradient(135deg, #1a1c20 0%, #0f1012 100%);
+  --header-bg: rgba(26, 28, 32, 0.9);
+  --card-bg: rgba(255, 255, 255, 0.05);
+  --text-color: #e0e0e0;
+  --text-muted: #a0a0a0;
+  --accent-color: #61dafb;
+  --accent-gradient: linear-gradient(90deg, #61dafb, #21a1f1);
+  --border-color: rgba(255, 255, 255, 0.1);
+  --shadow-sm: 0 4px 6px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 8px 16px rgba(0, 0, 0, 0.5);
+  --font-main: 'Inter', sans-serif;
+  --font-header: 'Inter', sans-serif;
+}
+
+[data-theme='light'] {
+  --bg-gradient: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  --header-bg: rgba(255, 255, 255, 0.9);
+  --card-bg: rgba(255, 255, 255, 0.9);
+  --text-color: #333;
+  --text-muted: #666;
+  --accent-color: #007bff;
+  --accent-gradient: linear-gradient(90deg, #007bff, #0056b3);
+  --border-color: rgba(0, 0, 0, 0.1);
+}
+
+/* Dark Fantasy Theme - Premium & Immersive */
+[data-theme='fantasy'] {
+  --bg-gradient: radial-gradient(circle at center, #2c1e12 0%, #0f0a06 100%);
+  --header-bg: rgba(20, 10, 5, 0.95);
+  --card-bg: rgba(40, 25, 15, 0.7);
+  --text-color: #e8dcb5;
+  --text-muted: #a6906c;
+  --accent-color: #c0392b;
+  /* Crimson Red */
+  --accent-gradient: linear-gradient(90deg, #c0392b, #8e44ad);
+  /* Crimson to Purple */
+  --border-color: #8b4513;
+  --font-header: 'Cinzel', serif;
+  --shadow-sm: 0 4px 12px rgba(0, 0, 0, 0.6);
+  --shadow-md: 0 10px 25px rgba(0, 0, 0, 0.8);
+}
+
+[data-theme='cyberpunk'] {
+  --bg-gradient: linear-gradient(45deg, #050505, #120024);
+  --header-bg: rgba(10, 0, 20, 0.95);
+  --card-bg: rgba(20, 0, 40, 0.6);
+  --text-color: #00ff41;
+  --text-muted: #008f11;
+  --accent-color: #ff00ff;
+  --accent-gradient: linear-gradient(90deg, #ff00ff, #00e5ff);
+  --border-color: #00ff41;
+  --font-header: 'Orbitron', sans-serif;
+  --shadow-md: 0 0 20px rgba(0, 255, 65, 0.2);
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-main);
+  background: var(--bg-gradient);
+  background-attachment: fixed;
+  color: var(--text-color);
+  min-height: 100vh;
+  transition: all 0.3s ease;
+}
+
+/* Header */
+.App-header {
+  background: var(--header-bg);
+  backdrop-filter: blur(10px);
+  padding: 1rem 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  border-bottom: 1px solid var(--border-color);
+  box-shadow: var(--shadow-sm);
+}
+
+.App-header h1 {
+  margin: 0;
+  font-family: var(--font-header);
+  font-size: 1.8rem;
+  background: var(--accent-gradient);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+}
+
+.App-header nav {
+  display: flex;
+  gap: 1rem;
+}
+
+/* Buttons */
+button,
+.btn-primary {
+  background: var(--accent-gradient);
+  border: none;
+  border-radius: 4px;
+  /* Sharper corners for fantasy feel */
+  padding: 0.7rem 1.4rem;
+  color: white;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-family: var(--font-main);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+button:hover,
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 0 15px var(--accent-color);
+  filter: brightness(1.2);
+}
+
+/* Inputs & Selects */
+input,
+select,
+textarea {
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  color: var(--text-color);
+  padding: 1rem;
+  border-radius: 4px;
+  font-family: var(--font-main);
+  width: 100%;
+  box-sizing: border-box;
+  transition: border-color 0.3s;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  outline: none;
+  border-color: var(--accent-color);
+  box-shadow: 0 0 10px rgba(97, 218, 251, 0.1);
+}
+
+/* Cards & Containers */
+main {
+  padding: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.card,
+.adventure-item {
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 2rem;
+  margin-bottom: 1.5rem;
+  backdrop-filter: blur(5px);
+  box-shadow: var(--shadow-sm);
+  transition: all 0.3s ease;
+}
+
+/* Adventure List Grid */
+.list-container ul {
+  list-style: none;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 2rem;
+}
+
+.adventure-item {
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+  height: 100%;
+  position: relative;
+  overflow: hidden;
+}
+
+.adventure-item::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 4px;
+  background: var(--accent-gradient);
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.adventure-item:hover {
+  transform: translateY(-5px);
+  box-shadow: var(--shadow-md);
+  border-color: var(--accent-color);
+}
+
+.adventure-item:hover::before {
+  opacity: 1;
+}
+
+.adventure-item strong {
+  font-size: 1.4rem;
+  font-family: var(--font-header);
+  color: var(--accent-color);
+}
+
+.system-tag {
+  background: rgba(255, 255, 255, 0.05);
+  padding: 0.3rem 0.8rem;
+  border-radius: 2px;
+  font-size: 0.9rem;
+  align-self: flex-start;
+  border: 1px solid var(--border-color);
+}
+
+.date {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  margin-top: auto;
+  font-style: italic;
+}
+
+/* Loading Spinner Styles */
+.spinner-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.85);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  backdrop-filter: blur(5px);
+}
+
+.spinner-content {
+  text-align: center;
+  width: 80%;
+  max-width: 400px;
+}
+
+.spinner-rune {
+  width: 60px;
+  height: 60px;
+  border: 4px solid var(--accent-color);
+  border-top: 4px solid transparent;
+  border-radius: 50%;
+  margin: 0 auto 1.5rem;
+  animation: spin 1s linear infinite;
+  box-shadow: 0 0 15px var(--accent-color);
+}
+
+.spinner-message {
+  font-family: var(--font-header);
+  font-size: 1.2rem;
+  color: var(--text-color);
+  margin-bottom: 1rem;
+  letter-spacing: 1px;
+}
+
+.progress-bar-container {
+  width: 100%;
+  height: 6px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  background: var(--accent-gradient);
+  width: 100%;
+  animation: progress 2s ease-in-out infinite;
+  transform-origin: left;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes progress {
+  0% {
+    transform: scaleX(0);
+  }
+
+  50% {
+    transform: scaleX(0.7);
+  }
+
+  100% {
+    transform: scaleX(1);
+  }
+}
+
+/* Print Styles */
+@media print {
+  body {
+    background: white;
+    color: black;
+  }
+
+  .App-header,
+  button,
+  .theme-switcher,
+  .btn-primary,
+  .spinner-overlay {
+    display: none !important;
+  }
+
+  .card,
+  .adventure-item {
+    border: none;
+    box-shadow: none;
+    background: none;
+    color: black;
+  }
+}
+
+[data-theme='light'] {
+  --bg-gradient: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  --header-bg: rgba(255, 255, 255, 0.8);
+  --card-bg: rgba(255, 255, 255, 0.8);
+  --text-color: #333;
+  --text-muted: #666;
+  --accent-color: #007bff;
+  --accent-gradient: linear-gradient(90deg, #007bff, #0056b3);
+  --border-color: rgba(0, 0, 0, 0.1);
+}
+
+[data-theme='fantasy'] {
+  --bg-gradient: url('https://www.transparenttextures.com/patterns/aged-paper.png'), linear-gradient(to bottom, #2c1e12, #1a120b);
+  --header-bg: rgba(44, 30, 18, 0.9);
+  --card-bg: rgba(60, 42, 26, 0.8);
+  --text-color: #f4e4bc;
+  --text-muted: #d4c49c;
+  --accent-color: #d4af37;
+  --accent-gradient: linear-gradient(90deg, #d4af37, #aa8c2c);
+  --border-color: #8b4513;
+  --font-header: 'Cinzel', serif;
+}
+
+[data-theme='cyberpunk'] {
+  --bg-gradient: linear-gradient(45deg, #0b0b0b, #1a1a2e);
+  --header-bg: rgba(10, 10, 20, 0.9);
+  --card-bg: rgba(20, 20, 40, 0.6);
+  --text-color: #00ff41;
+  --text-muted: #008f11;
+  --accent-color: #ff00ff;
+  --accent-gradient: linear-gradient(90deg, #ff00ff, #bc13fe);
+  --border-color: #00ff41;
+  --font-header: 'Orbitron', sans-serif;
+  --shadow-md: 0 0 15px rgba(0, 255, 65, 0.3);
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-main);
+  background: var(--bg-gradient);
+  background-attachment: fixed;
+  color: var(--text-color);
+  min-height: 100vh;
+  transition: all 0.3s ease;
+}
+
+/* Header */
+.App-header {
+  background: var(--header-bg);
+  backdrop-filter: blur(10px);
+  padding: 1rem 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  border-bottom: 1px solid var(--border-color);
+  box-shadow: var(--shadow-sm);
+}
+
+.App-header h1 {
+  margin: 0;
+  font-family: var(--font-header);
+  font-size: 1.5rem;
+  background: var(--accent-gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.App-header nav {
+  display: flex;
+  gap: 1rem;
+}
+
+/* Buttons */
+button,
+.btn-primary {
+  background: var(--accent-gradient);
+  border: none;
+  border-radius: 8px;
+  padding: 0.6rem 1.2rem;
+  color: white;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+  font-family: var(--font-main);
+}
+
+button:hover,
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  filter: brightness(1.1);
+}
+
+/* Inputs & Selects */
+input,
+select,
+textarea {
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  color: var(--text-color);
+  padding: 0.8rem;
+  border-radius: 6px;
+  font-family: var(--font-main);
+  width: 100%;
+  box-sizing: border-box;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  outline: none;
+  border-color: var(--accent-color);
+  box-shadow: 0 0 0 2px rgba(97, 218, 251, 0.2);
+}
+
+/* Cards & Containers */
+main {
+  padding: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.card,
+.adventure-item {
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin-bottom: 1rem;
+  backdrop-filter: blur(5px);
+  box-shadow: var(--shadow-sm);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+/* Adventure List Grid */
+.list-container ul {
+  list-style: none;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1.5rem;
+}
+
+.adventure-item {
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  height: 100%;
+}
+
+.adventure-item:hover {
+  transform: translateY(-5px);
+  box-shadow: var(--shadow-md);
+  border-color: var(--accent-color);
+}
+
+.adventure-item strong {
+  font-size: 1.2rem;
+  color: var(--accent-color);
+}
+
+.system-tag {
+  background: rgba(255, 255, 255, 0.1);
+  padding: 0.2rem 0.6rem;
+  border-radius: 4px;
+  font-size: 0.85rem;
+  align-self: flex-start;
+}
+
+.date {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  margin-top: auto;
+}
+
+/* Print Styles */
+@media print {
+  body {
+    background: white;
+    color: black;
+  }
+
+  .App-header,
+  button,
+  .theme-switcher,
+  .btn-primary {
+    display: none !important;
+  }
+
+  .card,
+  .adventure-item {
+    border: none;
+    box-shadow: none;
+    background: none;
+    color: black;
+  }
+}
+
+[data-theme='light'] {
+  --bg-color: #f0f2f5;
+  --text-color: #333;
+  --card-bg: #ffffff;
+  --accent-color: #007bff;
+  --button-bg: #007bff;
+  --button-text: white;
+}
+
+[data-theme='fantasy'] {
+  --bg-color: #f4e4bc;
+  --text-color: #4a3b2a;
+  --card-bg: #e6d2a0;
+  --accent-color: #8b4513;
+  --button-bg: #8b4513;
+  --button-text: #f4e4bc;
+  font-family: 'Lora', serif;
+}
+
+[data-theme='cyberpunk'] {
+  --bg-color: #0d0221;
+  --text-color: #00ff41;
+  --card-bg: #1a1a2e;
+  --accent-color: #ff00ff;
+  --button-bg: #ff00ff;
+  --button-text: #0d0221;
+  font-family: 'Courier New', monospace;
+}
+
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  transition: background-color 0.3s, color 0.3s;
+}
+
+/* Print Styles */
+@media print {
+  body {
+    background-color: white;
+    color: black;
+  }
+
+  .App-header,
+  .tab-buttons,
+  .actions,
+  .input-area,
+  .spinner-overlay,
+  button {
+    display: none !important;
+  }
+
+  .adventure-section {
+    break-inside: avoid;
+    border: none;
+    box-shadow: none;
+  }
+
+  .card {
+    border: 1px solid #ccc;
+    break-inside: avoid;
+  }
+
+  /* Force two columns for content if possible, or just clean layout */
+  .section-content {
+    column-count: 1;
+    /* Keep simple for now */
+  }
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+    monospace;
+}

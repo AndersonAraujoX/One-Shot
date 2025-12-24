@@ -1,0 +1,63 @@
+/* src/components/AdventureForm.css */
+.adventure-form-container {
+    background-color: #1e1e1e;
+    padding: 30px;
+    border-radius: 8px;
+    margin-bottom: 30px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+}
+
+.adventure-form h2 {
+    text-align: center;
+    color: #e0e0e0;
+    font-family: 'Garamond', serif;
+    font-size: 2rem;
+    margin-bottom: 25px;
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+    margin-bottom: 25px;
+}
+
+.adventure-form label {
+    display: flex;
+    flex-direction: column;
+    color: #c7c7c7;
+    font-size: 0.9rem;
+}
+
+.adventure-form input {
+    padding: 10px;
+    border-radius: 4px;
+    border: 1px solid #444;
+    background-color: #2a2a2a;
+    color: #e0e0e0;
+    margin-top: 5px;
+    font-size: 1rem;
+}
+
+.adventure-form button {
+    display: block;
+    width: 100%;
+    padding: 15px;
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: #fff;
+    background-color: #a259ff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.adventure-form button:hover {
+    background-color: #8e4de6;
+}
+
+.adventure-form button:disabled {
+    background-color: #555;
+    cursor: not-allowed;
+}

@@ -1,0 +1,13 @@
+PyYAML
+tenacity
+rich
+google-generativeai
+fastapi
+uvicorn
+Pillow
+python-dotenv
+reportlab
+sqlalchemy
+google-cloud-aiplatform
+pytest
+click

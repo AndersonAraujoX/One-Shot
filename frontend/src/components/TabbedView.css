@@ -1,0 +1,102 @@
+/* src/components/TabbedView.css */
+.tabbed-view {
+    border: 1px solid #444;
+    border-radius: 8px;
+    background-color: #1e1e1e;
+    overflow: hidden;
+    margin-top: 20px;
+}
+
+.tab-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    background-color: #161616;
+    padding: 10px;
+}
+
+.tab-buttons button {
+    padding: 10px 20px;
+    cursor: pointer;
+    background: none;
+    border: 1px solid transparent;
+    color: #a9a9a9;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    border-radius: 5px;
+    margin: 5px;
+}
+
+.tab-buttons button:hover {
+    background-color: #333;
+    color: #fff;
+}
+
+.tab-buttons button.active {
+    background-color: #a259ff;
+    color: #fff;
+    font-weight: bold;
+}
+
+.tab-content {
+    padding: 25px;
+    color: #e0e0e0;
+}
+
+.adventure-section h2 {
+    font-family: 'Garamond', serif;
+    font-size: 2.5rem;
+    color: #a259ff;
+    border-bottom: 2px solid #a259ff;
+    padding-bottom: 10px;
+    margin-bottom: 20px;
+}
+
+.section-content {
+    line-height: 1.8;
+    font-size: 1.1rem;
+}
+
+.section-content .card {
+    background-color: #2a2a2a;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 20px;
+    border-left: 4px solid #a259ff;
+}
+
+.section-content .card h3 {
+    margin-top: 0;
+    color: #e0e0e0;
+}
+
+.section-content .card p {
+    color: #b0b0b0;
+}
+
+.section-content .card img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 4px;
+    margin-top: 15px;
+}
+
+.action-buttons {
+    display: flex;
+    gap: 15px;
+    margin-top: 20px;
+}
+
+.copy-button, .export-button {
+    padding: 10px 20px;
+    border: 1px solid #a259ff;
+    background-color: transparent;
+    color: #a259ff;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.copy-button:hover, .export-button:hover {
+    background-color: #a259ff;
+    color: #fff;
+}

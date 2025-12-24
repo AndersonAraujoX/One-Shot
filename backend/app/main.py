@@ -23,8 +23,9 @@ from app.batch import gerar_aventura_completa
 @click.option('--output', 'output_file', help='(Modo Batch) Arquivo para salvar a aventura completa (extensão será adicionada automaticamente).')
 @click.option('--output-format', type=click.Choice(['markdown', 'json', 'yaml']), default='markdown', show_default=True, help='(Modo Batch) Formato de saída da aventura completa.')
 @click.option('--zip', 'zip_output', is_flag=True, help='(Modo Batch) Salva a aventura e as imagens em um arquivo .zip.')
+@click.option('--secoes', help='(Modo Batch) Lista de seções para gerar, separadas por espaço (ex: "contexto ganchos vilao").')
 
-def cli(sistema, genero_estilo, num_jogadores, nivel_tier, tempo_estimado, modo_batch, gerar_personagens, output_file, output_format, zip_output):
+def cli(sistema, genero_estilo, num_jogadores, nivel_tier, tempo_estimado, modo_batch, gerar_personagens, output_file, output_format, zip_output, secoes):
     """
     Assistente de Criação de RPG: uma ferramenta para gerar one-shots de forma colaborativa ou automática.
     """
@@ -43,6 +44,8 @@ def cli(sistema, genero_estilo, num_jogadores, nivel_tier, tempo_estimado, modo_
         config["output_format"] = output_format
         config["gerar_personagens"] = gerar_personagens
         config["zip_output"] = zip_output
+        if secoes:
+            config["secoes"] = secoes.split()
         
         gerar_aventura_completa(**config)
     else:

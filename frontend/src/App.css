@@ -1,0 +1,141 @@
+/* src/App.css */
+body {
+    font-family: sans-serif;
+    background-color: #f0f0f0;
+    color: #333;
+    margin: 0;
+    padding: 0;
+}
+
+.App {
+  text-align: center;
+}
+
+.App-header {
+  background-color: var(--surface-color);
+  padding: 40px 20px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.App-header h1 {
+  margin: 0;
+  font-family: var(--font-secondary);
+  font-size: 3.5rem;
+  color: var(--primary-color);
+  letter-spacing: 2px;
+}
+
+main {
+  padding: 20px;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+
+.adventure-form {
+    background-color: white;
+    padding: 20px;
+    border-radius: 8px;
+    margin-top: 20px;
+}
+
+.adventure-form h2 {
+    margin-top: 0;
+}
+
+.adventure-form form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.adventure-form label {
+    display: flex;
+    flex-direction: column;
+}
+
+.adventure-form input {
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+.adventure-form .buttons {
+    display: flex;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.adventure-form button {
+    padding: 10px 15px;
+    border: none;
+    border-radius: 4px;
+    background-color: #61dafb;
+    color: white;
+    cursor: pointer;
+}
+
+.loading {
+    margin-top: 20px;
+    text-align: center;
+    font-style: italic;
+}
+
+.chat {
+    background-color: white;
+    padding: 20px;
+    border-radius: 8px;
+    margin-top: 20px;
+}
+
+.chat .messages {
+    max-height: 400px;
+    overflow-y: auto;
+    border: 1px solid #ccc;
+    padding: 10px;
+    border-radius: 4px;
+    margin-bottom: 10px;
+}
+
+.chat .message {
+    padding: 8px;
+    border-radius: 4px;
+    margin-bottom: 5px;
+}
+
+.chat .message.user {
+    background-color: #e1ffc7;
+    text-align: right;
+}
+
+.chat .message.ai {
+    background-color: #f1f0f0;
+}
+
+.chat .input-area {
+    display: flex;
+    gap: 10px;
+}
+
+.chat .input-area input {
+    flex-grow: 1;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+.chat .input-area button {
+    padding: 10px 15px;
+    border: none;
+    border-radius: 4px;
+    background-color: #61dafb;
+    color: white;
+    cursor: pointer;
+}
+
+.adventure-view {
+    background-color: white;
+    padding: 20px;
+    border-radius: 8px;
+    margin-top: 20px;
+}

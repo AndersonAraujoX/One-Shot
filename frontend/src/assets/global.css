@@ -1,0 +1,23 @@
+/* src/assets/global.css */
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@700&family=Roboto:wght@400;500&display=swap');
+
+:root {
+    --primary-color: #a259ff;
+    --background-color: #121212;
+    --surface-color: #1e1e1e;
+    --text-color: #e0e0e0;
+    --subtle-text-color: #b0b0b0;
+    --border-color: #444;
+
+    --font-primary: 'Roboto', sans-serif;
+    --font-secondary: 'Cormorant Garamond', serif;
+}
+
+body {
+    margin: 0;
+    font-family: var(--font-primary);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    background-color: var(--background-color);
+    color: var(--text-color);
+}
