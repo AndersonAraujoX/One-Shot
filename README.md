@@ -5,7 +5,16 @@
 ![React](https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)
 ![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/AndersonAraujoX/One-Shot/ci.yml?style=for-the-badge&label=Tests)
 
+![GitHub Pages](https://img.shields.io/github/deployments/AndersonAraujoX/One-Shot/github-pages?style=for-the-badge&label=Demo%20Online)
+
 > Uma ferramenta alimentada por **IA Generativa (Google Gemini)** para criar aventuras de RPG "one-shot" completas, com mapas, personagens e trama, prontas para jogar em minutos.
+
+## 🌐 Demo Online
+
+Acesse o **Frontend** rodando no GitHub Pages:
+[**🔗 Abrir Aplicação**](https://AndersonAraujoX.github.io/One-Shot)
+
+> **⚠️ Nota Importante**: O GitHub Pages hospeda apenas o **Frontend (Interface)**. Como a IA roda no **Backend (Python)**, a versão online pode não funcionar completamente a menos que você rode o backend localmente e conecte, ou se o backend estiver hospedado em outro serviço (como Render/Railway).
 
 ## ✨ Funcionalidades
 
