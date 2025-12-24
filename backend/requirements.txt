@@ -11,3 +11,4 @@ sqlalchemy
 google-cloud-aiplatform
 pytest
 click
+pytest-mock

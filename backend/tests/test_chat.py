@@ -31,7 +31,12 @@ def test_gerar_aventura_batch_executa_comandos_ordenados(mock_enviar, mock_inici
         key=lambda cmd: COMMAND_PROMPTS[cmd]["batch_order"]
     )
     
-    assert mock_enviar.call_count == len(comandos_esperados)
+    # gerar_imagem nÃ£o chama enviar_mensagem, entÃ£o subtraÃ­mos 1 se estiver na lista
+    expected_calls = len(comandos_esperados)
+    if "gerar_imagem" in [cmd for cmd in COMMAND_PROMPTS if COMMAND_PROMPTS[cmd].get("batch_order")]:
+        expected_calls -= 1
+
+    assert mock_enviar.call_count == expected_calls
     
     # Verifica as chaves no dicionário retornado
     assert "titulo" in adventure_data
@@ -56,7 +61,11 @@ def test_gerar_aventura_batch_pula_personagens(mock_enviar, mock_iniciar):
     
     # Verifica que o número de chamadas é um a menos que o total de batch commands
     total_batch_commands = sum(1 for meta in COMMAND_PROMPTS.values() if "batch_order" in meta)
-    assert mock_enviar.call_count == total_batch_commands - 1
+    expected_calls = total_batch_commands - 1 # Remove 'personagens'
+    if "gerar_imagem" in [cmd for cmd in COMMAND_PROMPTS if COMMAND_PROMPTS[cmd].get("batch_order")]:
+        expected_calls -= 1
+        
+    assert mock_enviar.call_count == expected_calls
 
 @patch('app.chat.iniciar_chat')
 @patch('app.chat.enviar_mensagem')

@@ -1,0 +1,197 @@
+﻿============================= test session starts =============================
+platform win32 -- Python 3.13.7, pytest-9.0.2, pluggy-1.6.0 -- C:\Python313\python.exe
+cachedir: .pytest_cache
+rootdir: C:\Users\Anderson\Documents\Projeto\one-shot\gerador-one-shot
+plugins: anyio-4.10.0
+collecting ... collected 16 items
+
+backend/tests/test_chat.py::test_gerar_aventura_batch_executa_comandos_ordenados FAILED [  6%]
+backend/tests/test_chat.py::test_gerar_aventura_batch_pula_personagens FAILED [ 12%]
+backend/tests/test_chat.py::test_gerar_aventura_batch_formata_prompt_corretamente PASSED [ 18%]
+backend/tests/test_cli.py::test_cli_help PASSED                          [ 25%]
+backend/tests/test_cli.py::test_cli_modo_batch FAILED                    [ 31%]
+backend/tests/test_cli.py::test_cli_modo_batch_com_extras FAILED         [ 37%]
+backend/tests/test_cli.py::test_cli_modo_interativo PASSED               [ 43%]
+backend/tests/test_cli.py::test_cli_argumentos_faltando PASSED           [ 50%]
+backend/tests/test_generator.py::test_gerar_aventura_sucesso_com_json ERROR [ 56%]
+backend/tests/test_generator.py::test_gerar_aventura_json_invalido ERROR [ 62%]
+backend/tests/test_generator.py::test_gerar_aventura_dados_nao_conformes ERROR [ 68%]
+backend/tests/test_generator.py::test_gerar_aventura_resposta_vazia_da_api ERROR [ 75%]
+backend/tests/test_generator.py::test_gerar_aventura_excecao_generica_api ERROR [ 81%]
+backend/tests/test_resources.py::test_validade_json_prompts PASSED       [ 87%]
+backend/tests/test_resources.py::test_presenca_chave_api PASSED          [ 93%]
+backend/tests/test_resources.py::test_placeholders_no_prompt PASSED      [100%]
+
+=================================== ERRORS ====================================
+___________ ERROR at setup of test_gerar_aventura_sucesso_com_json ____________
+file C:\Users\Anderson\Documents\Projeto\one-shot\gerador-one-shot\backend\tests\test_generator.py, line 32
+  def test_gerar_aventura_sucesso_com_json(mocker):
+E       fixture 'mocker' not found
+>       available fixtures: anyio_backend, anyio_backend_name, anyio_backend_options, cache, capfd, capfdbinary, caplog, capsys, capsysbinary, capteesys, doctest_namespace, free_tcp_port, free_tcp_port_factory, free_udp_port, free_udp_port_factory, monkeypatch, pytestconfig, record_property, record_testsuite_property, record_xml_attribute, recwarn, subtests, tmp_path, tmp_path_factory, tmpdir, tmpdir_factory
+>       use 'pytest --fixtures [testpath]' for help on them.
+
+C:\Users\Anderson\Documents\Projeto\one-shot\gerador-one-shot\backend\tests\test_generator.py:32
+_____________ ERROR at setup of test_gerar_aventura_json_invalido _____________
+file C:\Users\Anderson\Documents\Projeto\one-shot\gerador-one-shot\backend\tests\test_generator.py, line 46
+  def test_gerar_aventura_json_invalido(mocker):
+E       fixture 'mocker' not found
+>       available fixtures: anyio_backend, anyio_backend_name, anyio_backend_options, cache, capfd, capfdbinary, caplog, capsys, capsysbinary, capteesys, doctest_namespace, free_tcp_port, free_tcp_port_factory, free_udp_port, free_udp_port_factory, monkeypatch, pytestconfig, record_property, record_testsuite_property, record_xml_attribute, recwarn, subtests, tmp_path, tmp_path_factory, tmpdir, tmpdir_factory
+>       use 'pytest --fixtures [testpath]' for help on them.
+
+C:\Users\Anderson\Documents\Projeto\one-shot\gerador-one-shot\backend\tests\test_generator.py:46
+__________ ERROR at setup of test_gerar_aventura_dados_nao_conformes __________
+file C:\Users\Anderson\Documents\Projeto\one-shot\gerador-one-shot\backend\tests\test_generator.py, line 56
+  def test_gerar_aventura_dados_nao_conformes(mocker):
+E       fixture 'mocker' not found
+>       available fixtures: anyio_backend, anyio_backend_name, anyio_backend_options, cache, capfd, capfdbinary, caplog, capsys, capsysbinary, capteesys, doctest_namespace, free_tcp_port, free_tcp_port_factory, free_udp_port, free_udp_port_factory, monkeypatch, pytestconfig, record_property, record_testsuite_property, record_xml_attribute, recwarn, subtests, tmp_path, tmp_path_factory, tmpdir, tmpdir_factory
+>       use 'pytest --fixtures [testpath]' for help on them.
+
+C:\Users\Anderson\Documents\Projeto\one-shot\gerador-one-shot\backend\tests\test_generator.py:56
+_________ ERROR at setup of test_gerar_aventura_resposta_vazia_da_api _________
+file C:\Users\Anderson\Documents\Projeto\one-shot\gerador-one-shot\backend\tests\test_generator.py, line 69
+  def test_gerar_aventura_resposta_vazia_da_api(mocker):
+E       fixture 'mocker' not found
+>       available fixtures: anyio_backend, anyio_backend_name, anyio_backend_options, cache, capfd, capfdbinary, caplog, capsys, capsysbinary, capteesys, doctest_namespace, free_tcp_port, free_tcp_port_factory, free_udp_port, free_udp_port_factory, monkeypatch, pytestconfig, record_property, record_testsuite_property, record_xml_attribute, recwarn, subtests, tmp_path, tmp_path_factory, tmpdir, tmpdir_factory
+>       use 'pytest --fixtures [testpath]' for help on them.
+
+C:\Users\Anderson\Documents\Projeto\one-shot\gerador-one-shot\backend\tests\test_generator.py:69
+_________ ERROR at setup of test_gerar_aventura_excecao_generica_api __________
+file C:\Users\Anderson\Documents\Projeto\one-shot\gerador-one-shot\backend\tests\test_generator.py, line 79
+  def test_gerar_aventura_excecao_generica_api(mocker):
+E       fixture 'mocker' not found
+>       available fixtures: anyio_backend, anyio_backend_name, anyio_backend_options, cache, capfd, capfdbinary, caplog, capsys, capsysbinary, capteesys, doctest_namespace, free_tcp_port, free_tcp_port_factory, free_udp_port, free_udp_port_factory, monkeypatch, pytestconfig, record_property, record_testsuite_property, record_xml_attribute, recwarn, subtests, tmp_path, tmp_path_factory, tmpdir, tmpdir_factory
+>       use 'pytest --fixtures [testpath]' for help on them.
+
+C:\Users\Anderson\Documents\Projeto\one-shot\gerador-one-shot\backend\tests\test_generator.py:79
+================================== FAILURES ===================================
+____________ test_gerar_aventura_batch_executa_comandos_ordenados _____________
+
+mock_enviar = <MagicMock name='enviar_mensagem' id='1475413309632'>
+mock_iniciar = <MagicMock name='iniciar_chat' id='1475416239344'>
+
+    @patch('app.chat.iniciar_chat')
+    @patch('app.chat.enviar_mensagem')
+    def test_gerar_aventura_batch_executa_comandos_ordenados(mock_enviar, mock_iniciar):
+        # Configura o mock para o chat
+        mock_chat = MagicMock()
+        mock_iniciar.return_value = mock_chat
+    
+        # Define um side_effect para o mock de enviar_mensagem
+        def mock_enviar_side_effect(chat, prompt):
+            if COMMAND_PROMPTS["contexto"]["prompt"] in prompt:
+                return '{"titulo": "TÝtulo Teste", "sinopse": "Sinopse Teste"}'
+            if COMMAND_PROMPTS["personagens_chave"]["prompt"] in prompt:
+                return '[{"nome": "NPC Teste", "aparencia": "AparÛncia Teste", "url_imagem": ""}]'
+            if COMMAND_PROMPTS["locais_importantes"]["prompt"] in prompt:
+                return '[{"nome": "Local Teste", "atmosfera": "Atmosfera Teste", "url_imagem": ""}]'
+            return "Conte·do gerado"
+    
+        mock_enviar.side_effect = mock_enviar_side_effect
+    
+        # Chama a funþÒo
+        adventure_data = gerar_aventura_batch(gerar_personagens=True, sistema="D&D 5e", num_jogadores=4, nivel_tier="1")
+    
+        # Verifica se os comandos foram chamados na ordem correta
+        comandos_esperados = sorted(
+            [cmd for cmd, meta in COMMAND_PROMPTS.items() if meta.get("batch_order")],
+            key=lambda cmd: COMMAND_PROMPTS[cmd]["batch_order"]
+        )
+    
+>       assert mock_enviar.call_count == len(comandos_esperados)
+E       AssertionError: assert 12 == 13
+E        +  where 12 = <MagicMock name='enviar_mensagem' id='1475413309632'>.call_count
+E        +  and   13 = len(['contexto', 'ganchos', 'personagens', 'personagens_chave', 'locais_importantes', 'cenario', 'desafios', 'ato1', 'ato2', 'ato3', 'ato4', 'ato5', 'gerar_imagem'])
+
+backend\tests\test_chat.py:34: AssertionError
+---------------------------- Captured stdout call -----------------------------
+GOOGLE_CLOUD_PROJECT nÒo definido. Pulando geraþÒo de imagem.
+_________________ test_gerar_aventura_batch_pula_personagens __________________
+
+mock_enviar = <MagicMock name='enviar_mensagem' id='1475416673984'>
+mock_iniciar = <MagicMock name='iniciar_chat' id='1475416676336'>
+
+    @patch('app.chat.iniciar_chat')
+    @patch('app.chat.enviar_mensagem')
+    def test_gerar_aventura_batch_pula_personagens(mock_enviar, mock_iniciar):
+        mock_iniciar.return_value = MagicMock()
+        mock_enviar.return_value = "Conte·do"
+    
+        # Chama a funþÒo sem a flag gerar_personagens
+        adventure_data = gerar_aventura_batch(gerar_personagens=False)
+    
+        # Verifica que 'personagens' nÒo estß nos dados retornados
+        assert "personagens" not in adventure_data
+    
+        # Verifica que o n·mero de chamadas Ú um a menos que o total de batch commands
+        total_batch_commands = sum(1 for meta in COMMAND_PROMPTS.values() if "batch_order" in meta)
+>       assert mock_enviar.call_count == total_batch_commands - 1
+E       AssertionError: assert 11 == (13 - 1)
+E        +  where 11 = <MagicMock name='enviar_mensagem' id='1475416673984'>.call_count
+
+backend\tests\test_chat.py:59: AssertionError
+---------------------------- Captured stdout call -----------------------------
+GOOGLE_CLOUD_PROJECT nÒo definido. Pulando geraþÒo de imagem.
+_____________________________ test_cli_modo_batch _____________________________
+
+mock_gerar_aventura = <MagicMock name='gerar_aventura_completa' id='1475416678016'>
+
+    @patch('app.main.gerar_aventura_completa')
+    def test_cli_modo_batch(mock_gerar_aventura):
+        runner = CliRunner()
+        result = runner.invoke(cli, [
+            '--sistema', 'D&D 5e',
+            '--genero', 'Fantasia',
+            '--jogadores', '4',
+            '--nivel', '5',
+            '--batch'
+        ])
+        assert result.exit_code == 0
+        # Verifica se a funþÒo correta foi chamada
+        mock_gerar_aventura.assert_called_once()
+    
+        # Verifica se os argumentos foram passados corretamente
+        call_args, call_kwargs = mock_gerar_aventura.call_args
+        assert call_kwargs['sistema'] == 'D&D 5e'
+>       assert call_kwargs['formato'] == 'markdown' # Default
+               ^^^^^^^^^^^^^^^^^^^^^^
+E       KeyError: 'formato'
+
+backend\tests\test_cli.py:33: KeyError
+_______________________ test_cli_modo_batch_com_extras ________________________
+
+mock_gerar_aventura = <MagicMock name='gerar_aventura_completa' id='1475416678688'>
+
+    @patch('app.main.gerar_aventura_completa')
+    def test_cli_modo_batch_com_extras(mock_gerar_aventura):
+        runner = CliRunner()
+        runner.invoke(cli, [
+            '--sistema', 'Cyberpunk',
+            '--genero', 'Sci-Fi',
+            '--jogadores', '3',
+            '--nivel', '1',
+            '--batch',
+            '--personagens',
+            '--formato', 'json',
+            '--output', 'aventura.json'
+        ])
+    
+        # Verifica os parÔmetros especÝficos
+>       call_args, call_kwargs = mock_gerar_aventura.call_args
+        ^^^^^^^^^^^^^^^^^^^^^^
+E       TypeError: cannot unpack non-iterable NoneType object
+
+backend\tests\test_cli.py:51: TypeError
+=========================== short test summary info ===========================
+FAILED backend/tests/test_chat.py::test_gerar_aventura_batch_executa_comandos_ordenados - AssertionError: assert 12 == 13
+ +  where 12 = <MagicMock name='enviar_mensagem' id='1475413309632'>.call_count
+ +  and   13 = len(['contexto', 'ganchos', 'personagens', 'personagens_chave', 'locais_importantes', 'cenario', 'desafios', 'ato1', 'ato2', 'ato3', 'ato4', 'ato5', 'gerar_imagem'])
+FAILED backend/tests/test_chat.py::test_gerar_aventura_batch_pula_personagens - AssertionError: assert 11 == (13 - 1)
+ +  where 11 = <MagicMock name='enviar_mensagem' id='1475416673984'>.call_count
+FAILED backend/tests/test_cli.py::test_cli_modo_batch - KeyError: 'formato'
+FAILED backend/tests/test_cli.py::test_cli_modo_batch_com_extras - TypeError: cannot unpack non-iterable NoneType object
+ERROR backend/tests/test_generator.py::test_gerar_aventura_sucesso_com_json
+ERROR backend/tests/test_generator.py::test_gerar_aventura_json_invalido
+ERROR backend/tests/test_generator.py::test_gerar_aventura_dados_nao_conformes
+ERROR backend/tests/test_generator.py::test_gerar_aventura_resposta_vazia_da_api
+ERROR backend/tests/test_generator.py::test_gerar_aventura_excecao_generica_api
+==================== 4 failed, 7 passed, 5 errors in 3.06s ====================

@@ -1,0 +1,80 @@
+﻿============================= test session starts =============================
+platform win32 -- Python 3.13.7, pytest-9.0.2, pluggy-1.6.0 -- C:\Python313\python.exe
+cachedir: .pytest_cache
+rootdir: C:\Users\Anderson\Documents\Projeto\one-shot\gerador-one-shot
+plugins: anyio-4.10.0, mock-3.15.1
+collecting ... collected 16 items
+
+backend/tests/test_chat.py::test_gerar_aventura_batch_executa_comandos_ordenados PASSED [  6%]
+backend/tests/test_chat.py::test_gerar_aventura_batch_pula_personagens FAILED [ 12%]
+backend/tests/test_chat.py::test_gerar_aventura_batch_formata_prompt_corretamente PASSED [ 18%]
+backend/tests/test_cli.py::test_cli_help PASSED                          [ 25%]
+backend/tests/test_cli.py::test_cli_modo_batch PASSED                    [ 31%]
+backend/tests/test_cli.py::test_cli_modo_batch_com_extras FAILED         [ 37%]
+backend/tests/test_cli.py::test_cli_modo_interativo PASSED               [ 43%]
+backend/tests/test_cli.py::test_cli_argumentos_faltando PASSED           [ 50%]
+backend/tests/test_generator.py::test_gerar_aventura_sucesso_com_json PASSED [ 56%]
+backend/tests/test_generator.py::test_gerar_aventura_json_invalido PASSED [ 62%]
+backend/tests/test_generator.py::test_gerar_aventura_dados_nao_conformes PASSED [ 68%]
+backend/tests/test_generator.py::test_gerar_aventura_resposta_vazia_da_api PASSED [ 75%]
+backend/tests/test_generator.py::test_gerar_aventura_excecao_generica_api PASSED [ 81%]
+backend/tests/test_resources.py::test_validade_json_prompts PASSED       [ 87%]
+backend/tests/test_resources.py::test_presenca_chave_api PASSED          [ 93%]
+backend/tests/test_resources.py::test_placeholders_no_prompt PASSED      [100%]
+
+================================== FAILURES ===================================
+_________________ test_gerar_aventura_batch_pula_personagens __________________
+
+mock_enviar = <MagicMock name='enviar_mensagem' id='2068714983776'>
+mock_iniciar = <MagicMock name='iniciar_chat' id='2068714984112'>
+
+    @patch('app.chat.iniciar_chat')
+    @patch('app.chat.enviar_mensagem')
+    def test_gerar_aventura_batch_pula_personagens(mock_enviar, mock_iniciar):
+        mock_iniciar.return_value = MagicMock()
+        mock_enviar.return_value = "Conte·do"
+    
+        # Chama a funþÒo sem a flag gerar_personagens
+        adventure_data = gerar_aventura_batch(gerar_personagens=False)
+    
+        # Verifica que 'personagens' nÒo estß nos dados retornados
+        assert "personagens" not in adventure_data
+    
+        # Verifica que o n·mero de chamadas Ú um a menos que o total de batch commands
+        total_batch_commands = sum(1 for meta in COMMAND_PROMPTS.values() if "batch_order" in meta)
+>       assert mock_enviar.call_count == total_batch_commands - 1
+E       AssertionError: assert 11 == (13 - 1)
+E        +  where 11 = <MagicMock name='enviar_mensagem' id='2068714983776'>.call_count
+
+backend\tests\test_chat.py:64: AssertionError
+---------------------------- Captured stdout call -----------------------------
+GOOGLE_CLOUD_PROJECT nÒo definido. Pulando geraþÒo de imagem.
+_______________________ test_cli_modo_batch_com_extras ________________________
+
+mock_gerar_aventura = <MagicMock name='gerar_aventura_completa' id='2068714988816'>
+
+    @patch('app.main.gerar_aventura_completa')
+    def test_cli_modo_batch_com_extras(mock_gerar_aventura):
+        runner = CliRunner()
+        runner.invoke(cli, [
+            '--sistema', 'Cyberpunk',
+            '--genero', 'Sci-Fi',
+            '--jogadores', '3',
+            '--nivel', '1',
+            '--batch',
+            '--personagens',
+            '--formato', 'json',
+            '--output', 'aventura.json'
+        ])
+    
+        # Verifica os parÔmetros especÝficos
+>       call_args, call_kwargs = mock_gerar_aventura.call_args
+        ^^^^^^^^^^^^^^^^^^^^^^
+E       TypeError: cannot unpack non-iterable NoneType object
+
+backend\tests\test_cli.py:51: TypeError
+=========================== short test summary info ===========================
+FAILED backend/tests/test_chat.py::test_gerar_aventura_batch_pula_personagens - AssertionError: assert 11 == (13 - 1)
+ +  where 11 = <MagicMock name='enviar_mensagem' id='2068714983776'>.call_count
+FAILED backend/tests/test_cli.py::test_cli_modo_batch_com_extras - TypeError: cannot unpack non-iterable NoneType object
+======================== 2 failed, 14 passed in 3.22s =========================

@@ -158,18 +158,22 @@ def iniciar_chat(json_mode=False, sistema="Genérico", genero="Fantasia", temper
     generation_config["temperature"] = temperature
 
     model = genai.GenerativeModel(
-        model_name="gemini-1.5-flash",
+        model_name="gemini-2.0-flash",
         system_instruction=dynamic_instruction,
         generation_config=generation_config
     )
     return model.start_chat(history=[])
 
 @retry(
-    stop=stop_after_attempt(3),
-    wait=wait_exponential(multiplier=1, min=4, max=10),
-    retry=retry_if_exception_type(api_exceptions.InternalServerError),
-    reraise=True  # Re-levanta a exceção se as tentativas falharem
+    stop=stop_after_attempt(6),
+    wait=wait_exponential(multiplier=2, min=10, max=90),
+    retry=retry_if_exception_type((api_exceptions.InternalServerError, api_exceptions.ResourceExhausted)),
+    reraise=True
 )
+def _send_message_raw(chat, prompt):
+    """Função auxiliar para envio com retry automático em exceções da API."""
+    return chat.send_message(prompt)
+
 def enviar_mensagem(chat, prompt: str, max_history_tokens: int = 10, json_mode: bool = False) -> str:
     """
     Envia uma mensagem para o chat com tratamento de erro e gerenciamento de histórico.
@@ -180,18 +184,8 @@ def enviar_mensagem(chat, prompt: str, max_history_tokens: int = 10, json_mode: 
         chat.history = chat.history[-(max_history_tokens):]
 
     try:
-        # Ajusta a configuração de geração dinamicamente se necessário
-        # Nota: O SDK do Python pode não suportar mudar generation_config per call facilmente em versões antigas,
-        # mas vamos assumir que o chat mantém a config inicial ou que podemos instanciar um novo chat se precisar mudar drasticamente.
-        # Para simplificar, se precisarmos de JSON, vamos confiar que o prompt pede JSON e o modelo obedece,
-        # ou idealmente, deveríamos ter chats separados ou reconfigurar.
-        # Mas o Gemini 1.5+ suporta response_mime_type no generation_config.
-        
-        # Workaround: Se json_mode for True, tentamos forçar via prompt se a config não for mutável,
-        # mas a melhor prática é configurar o modelo corretamente.
-        # Como 'chat' é um objeto ChatSession, ele está atrelado a um modelo.
-        
-        response = chat.send_message(prompt)
+        # Chama a função auxiliar que possui o retry logic
+        response = _send_message_raw(chat, prompt)
         return response.text
     except api_exceptions.FailedPrecondition as e:
         raise ContentGenerationError(f"Erro de pré-condição da API: {e}")
@@ -318,3 +312,39 @@ def gerar_aventura_stream(**kwargs):
                 
         except Exception as e:
             yield json.dumps({"type": "error", "message": str(e)}) + "\n"
+
+def gerar_aventura_batch(**kwargs):
+    """
+    Gera uma aventura completa em modo batch e retorna um dicionário com os dados.
+    Esta função consome o gerador 'gerar_aventura_stream' e agrega os resultados.
+    Útil para testes e chamadas não-streaming.
+    """
+    adventure_data = {}
+    
+    # Adicionamos titulo e sinopse placeholders para caso o parse de contexto falhe, 
+    # mas idealmente o stream nos dará os dados.
+    
+    for chunk in gerar_aventura_stream(**kwargs):
+        try:
+            payload = json.loads(chunk)
+            if payload.get("type") == "data":
+                section = payload.get("section")
+                content = payload.get("content")
+                
+                # Tratamento especial para contexto que retorna dict com titulo e sinopse
+                if section == "contexto" and isinstance(content, dict):
+                    if "titulo" in content: adventure_data["titulo"] = content["titulo"]
+                    if "sinopse" in content: adventure_data["sinopse"] = content["sinopse"]
+                    # Salva o objeto completo também se necessário, ou formata como string?
+                    # O teste espera que "titulo" esteja na raiz do dict retornado.
+                    adventure_data["contexto"] = json.dumps(content, ensure_ascii=False, indent=2)
+                
+                elif isinstance(content, (list, dict)):
+                     adventure_data[section] = content
+                else:
+                     adventure_data[section] = content
+
+        except json.JSONDecodeError:
+            pass
+            
+    return adventure_data

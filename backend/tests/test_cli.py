@@ -30,7 +30,7 @@ def test_cli_modo_batch(mock_gerar_aventura):
     # Verifica se os argumentos foram passados corretamente
     call_args, call_kwargs = mock_gerar_aventura.call_args
     assert call_kwargs['sistema'] == 'D&D 5e'
-    assert call_kwargs['formato'] == 'markdown' # Default
+    assert call_kwargs['output_format'] == 'markdown' # Default
 
 # Teste para o modo batch com parâmetros extras
 @patch('app.main.gerar_aventura_completa')
@@ -43,7 +43,7 @@ def test_cli_modo_batch_com_extras(mock_gerar_aventura):
         '--nivel', '1',
         '--batch',
         '--personagens',
-        '--formato', 'json',
+        '--output-format', 'json',
         '--output', 'aventura.json'
     ])
     
@@ -51,7 +51,7 @@ def test_cli_modo_batch_com_extras(mock_gerar_aventura):
     call_args, call_kwargs = mock_gerar_aventura.call_args
     assert call_kwargs['gerar_personagens'] is True
     assert call_kwargs['output_file'] == 'aventura.json'
-    assert call_kwargs['formato'] == 'json'
+    assert call_kwargs['output_format'] == 'json'
 
 # Teste para o modo interativo
 @patch('app.main.iniciar_sessao_criativa')
