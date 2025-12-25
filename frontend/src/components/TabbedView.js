@@ -207,12 +207,27 @@ function TabbedView({ adventure, onUpdate }) {
         );
     };
 
-    const sections = [
-        'sinopse',
-        ...Object.keys(adventure).filter(k => k !== 'titulo' && k !== 'sinopse' && k !== 'personagens_chave' && k !== 'locais_importantes')
+    const sectionOrder = [
+        'sinopse', 'ganchos', 'personagens', 'personagens_chave', 'locais_importantes',
+        'cenario', 'desafios',
+        'ato1', 'ato2', 'ato3', 'ato4', 'ato5',
+        'resumo'
     ];
-    if (adventure.personagens_chave) sections.splice(1, 0, 'personagens');
-    if (adventure.locais_importantes) sections.splice(2, 0, 'locais');
+
+    const sections = Object.keys(adventure).sort((a, b) => {
+        const indexA = sectionOrder.indexOf(a);
+        const indexB = sectionOrder.indexOf(b);
+        if (indexA === -1 && indexB === -1) return a.localeCompare(b);
+        if (indexA === -1) return 1;
+        if (indexB === -1) return -1;
+        return indexA - indexB;
+    }).filter(k => k !== 'titulo');
+
+    // Remove duplicates if any (though keys are unique)
+    // Handle special rendering removal if needed but our sort handles it.
+    // We want 'personagens' (raw) and 'personagens_chave' (npc) to be handled.
+    // 'personagens' might be the player chars. 
+    // Let's filter out internal keys if necessary.
 
 
     return (

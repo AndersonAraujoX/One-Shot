@@ -30,10 +30,17 @@ function App() {
             (chunk) => {
                 if (chunk.type === 'progress') {
                     setLoadingMessage(chunk.message);
-                    // Atualiza progresso baseado na mensagem (estimativa)
-                    if (chunk.message.includes("Arte Conceitual")) setProgress(15);
-                    if (chunk.message.includes("Mundo")) setProgress(30);
-                    if (chunk.message.includes("Trama")) setProgress(60);
+                    // Atualiza progresso baseado na mensagem (estimativa granular)
+                    if (chunk.message.includes("Arte")) setProgress(10);
+                    if (chunk.message.includes("Contexto")) setProgress(20);
+                    if (chunk.message.includes("Recrutando")) setProgress(30);
+                    if (chunk.message.includes("Povoando")) setProgress(40);
+                    if (chunk.message.includes("Preparando")) setProgress(50);
+                    if (chunk.message.includes("Ato 1")) setProgress(60);
+                    if (chunk.message.includes("Ato 2")) setProgress(70);
+                    if (chunk.message.includes("Ato 3")) setProgress(80);
+                    if (chunk.message.includes("Ato 4")) setProgress(90);
+                    if (chunk.message.includes("Ato 5")) setProgress(95);
                 } else if (chunk.type === 'data') {
                     setAdventure(prev => {
                         const newData = { ...prev };

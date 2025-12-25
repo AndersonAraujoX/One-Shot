@@ -273,81 +273,102 @@ def gerar_aventura_stream(**kwargs):
             # Mas como o usuário quer "fazer funcionar", vamos focar no caminho feliz otimizado.
             pass
 
-    # --- FLUXO OTIMIZADO (BATCH) ---
+    # --- FLUXO GRANULAR (SEQUENCIAL/SAFE) ---
+    # Dividido para garantir que o modelo não corte a resposta (Token Limit)
     
-    # 1. Geração de Imagem (Independente)
+    # 1. Geração de Imagem
     if not secoes_customizadas or "gerar_imagem" in secoes_customizadas:
          yield json.dumps({"type": "progress", "message": "Gerando Arte Conceitual..."}) + "\n"
          prompt_img = COMMAND_PROMPTS["gerar_imagem"]["prompt"]
          img_url = gerar_imagem(prompt_img)
          yield json.dumps({"type": "data", "section": "gerar_imagem", "content": img_url}) + "\n"
 
-    # 2. Batch 1: Setup do Mundo
-    yield json.dumps({"type": "progress", "message": "Criando o Mundo e Personagens (Isso pode levar alguns segundos)..."}) + "\n"
-    
-    prompt_setup = """
-    Gere os seguintes elementos da aventura EM FORMATO JSON ÚNICO.
-    Use as chaves exatas abaixo para o objeto JSON:
-    
-    1. "contexto": { "titulo": "...", "sinopse": "..." } (Contexto e Sinopse)
-    2. "ganchos": String ou Lista (Ganchos da Trama)
-    3. "personagens": String ou Lista de Objetos (Personagens Jogadores Detalhados - """ + str(kwargs.get('num_jogadores', 4)) + """ personagens nível """ + str(kwargs.get('nivel_tier', '1')) + """)
-    4. "personagens_chave": Lista de Objetos [{ "nome": "...", "aparencia": "...", "url_imagem": "https://placehold.co/400" }] (NPCs Principais)
-    5. "locais_importantes": Lista de Objetos [{ "nome": "...", "atmosfera": "...", "url_imagem": "https://placehold.co/600x400" }]
-    
+    # 2. Contexto e Ganchos
+    yield json.dumps({"type": "progress", "message": "Definindo Contexto e Ganchos..."}) + "\n"
+    prompt_basic = """
+    Gere:
+    1. "contexto": { "titulo": "...", "sinopse": "..." }
+    2. "ganchos": String/Lista
     Responda APENAS o JSON.
     """
-    
     try:
-        response_setup = enviar_mensagem(chat, prompt_setup)
-        # Tenta limpar e parsear
-        clean_setup = response_setup.replace("```json", "").replace("```", "").strip()
-        data_setup = json.loads(clean_setup)
-        
-        # Envia cada parte individualmente para o frontend
-        for key in ["contexto", "ganchos", "personagens", "personagens_chave", "locais_importantes"]:
-            if key in data_setup:
-                yield json.dumps({"type": "data", "section": key, "content": data_setup[key]}) + "\n"
-            else:
-                # Fallback se faltar chave
-                # Tenta pedir sutilmente ou apenas logar
-                pass
-                
+        response = enviar_mensagem(chat, prompt_basic)
+        data = json.loads(response.replace("```json", "").replace("```", "").strip())
+        for key in ["contexto", "ganchos"]:
+             if key in data: yield json.dumps({"type": "data", "section": key, "content": data[key]}) + "\n"
     except Exception as e:
-        yield json.dumps({"type": "error", "message": f"Erro no Setup do Mundo: {e}"}) + "\n"
-        print(f"Erro Batch Setup: {e}")
+        print(f"Erro Basic Setup: {e}")
 
-    # 3. Batch 2: Trama e Desafios
-    yield json.dumps({"type": "progress", "message": "Desenvolvendo a Trama e os Átos..."}) + "\n"
-    
-    prompt_plot = """
-    Agora, com base no mundo criado, gere a Trama Completa EM FORMATO JSON ÚNICO.
-    Use as chaves exatas abaixo:
-    
-    1. "cenario": String (Prompts para mapas de batalha)
-    2. "desafios": String (Lista de desafios/combates)
-    3. "ato1": String (Introdução)
-    4. "ato2": String (Complicação)
-    5. "ato3": String (Ponto de Virada)
-    6. "ato4": String (Clímax)
-    7. "ato5": String (Resolução)
-    8. "resumo": String (Resumo final)
-    
+    # 3. Personagens (Pesado)
+    yield json.dumps({"type": "progress", "message": "Recrutando Aventureiros..."}) + "\n"
+    prompt_chars = f"""
+    Gere:
+    1. "personagens": Lista de {kwargs.get('num_jogadores', 4)} personagens nível {kwargs.get('nivel_tier', '1')}.
     Responda APENAS o JSON.
     """
-    
     try:
-        response_plot = enviar_mensagem(chat, prompt_plot)
-        clean_plot = response_plot.replace("```json", "").replace("```", "").strip()
-        data_plot = json.loads(clean_plot)
-        
-        for key in ["cenario", "desafios", "ato1", "ato2", "ato3", "ato4", "ato5", "resumo"]:
-            if key in data_plot:
-                yield json.dumps({"type": "data", "section": key, "content": data_plot[key]}) + "\n"
-                
+        response = enviar_mensagem(chat, prompt_chars)
+        data = json.loads(response.replace("```json", "").replace("```", "").strip())
+        if "personagens" in data: yield json.dumps({"type": "data", "section": "personagens", "content": data["personagens"]}) + "\n"
     except Exception as e:
-        yield json.dumps({"type": "error", "message": f"Erro na Trama: {e}"}) + "\n"
-        print(f"Erro Batch Plot: {e}")
+        print(f"Erro Characters: {e}")
+
+    # 4. NPCs e Locais
+    yield json.dumps({"type": "progress", "message": "Povoando o Mundo..."}) + "\n"
+    prompt_world = """
+    Gere:
+    1. "personagens_chave": Lista de NPCs.
+    2. "locais_importantes": Lista de Locais.
+    Use os placeholders de imagem padrão. Responda APENAS o JSON.
+    """
+    try:
+        response = enviar_mensagem(chat, prompt_world)
+        data = json.loads(response.replace("```json", "").replace("```", "").strip())
+        for key in ["personagens_chave", "locais_importantes"]:
+             if key in data: yield json.dumps({"type": "data", "section": key, "content": data[key]}) + "\n"
+    except Exception as e:
+        print(f"Erro NPCs/Locais: {e}")
+
+    # 5. Trama - Infraestrutura
+    yield json.dumps({"type": "progress", "message": "Preparando o Terreno (Cenários)..."}) + "\n"
+    prompt_infra = """Gere 'cenario' (prompts de mapa) e 'desafios' (lista). Responda JSON."""
+    try:
+        response = enviar_mensagem(chat, prompt_infra)
+        data = json.loads(response.replace("```json", "").replace("```", "").strip())
+        for key in ["cenario", "desafios"]:
+             if key in data: yield json.dumps({"type": "data", "section": key, "content": data[key]}) + "\n"
+    except Exception as e:
+         print(f"Erro Infra: {e}")
+
+    # 6. Trama - Atos Individuais
+    atos_steps = [
+        ("ato1", "Escrevendo Ato 1..."),
+        ("ato2", "Escrevendo Ato 2..."),
+        ("ato3", "Escrevendo Ato 3..."),
+        ("ato4", "Escrevendo Ato 4..."),
+        ("ato5", "Escrevendo Ato 5 e Resumo...")
+    ]
+
+    for ato_key, msg in atos_steps:
+        yield json.dumps({"type": "progress", "message": msg}) + "\n"
+        extra_instr = ' e "resumo"' if ato_key == "ato5" else ""
+        prompt_ato = f"""Gere apenas o '{ato_key}'{extra_instr}. Responda JSON."""
+        try:
+            response = enviar_mensagem(chat, prompt_ato)
+            try:
+                # Tenta JSON primeiro
+                clean = response.replace("```json", "").replace("```", "").strip()
+                data = json.loads(clean)
+                if ato_key in data: yield json.dumps({"type": "data", "section": ato_key, "content": data[ato_key]}) + "\n"
+                if "resumo" in data: yield json.dumps({"type": "data", "section": "resumo", "content": data["resumo"]}) + "\n"
+            except json.JSONDecodeError:
+                # Fallback: Envia texto bruto se não for JSON válido
+                print(f"Warn: JSON falhou para {ato_key}, enviando texto bruto.")
+                yield json.dumps({"type": "data", "section": ato_key, "content": response}) + "\n"
+                
+        except Exception as e:
+            print(f"Erro Crítico {ato_key}: {e}")
+            yield json.dumps({"type": "error", "message": f"Erro ao gerar {ato_key}: {str(e)}"}) + "\n"
 
 def gerar_aventura_batch(**kwargs):
     """
