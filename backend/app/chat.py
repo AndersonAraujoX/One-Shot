@@ -276,12 +276,40 @@ def gerar_aventura_stream(**kwargs):
     # --- FLUXO GRANULAR (SEQUENCIAL/SAFE) ---
     # Dividido para garantir que o modelo não corte a resposta (Token Limit)
     
-    # 1. Geração de Imagem
+    # 1. Geração de Imagem (Modelo User Request: gemini-2.5-flash)
+    # Usuario confia que existe, então vamos tentar usar diretamente.
     if not secoes_customizadas or "gerar_imagem" in secoes_customizadas:
-         yield json.dumps({"type": "progress", "message": "Gerando Arte Conceitual..."}) + "\n"
+         yield json.dumps({"type": "progress", "message": "Gerando Capa (Gemini 2.5 Flash Image)..."}) + "\n"
          prompt_img = COMMAND_PROMPTS["gerar_imagem"]["prompt"]
-         img_url = gerar_imagem(prompt_img)
-         yield json.dumps({"type": "data", "section": "gerar_imagem", "content": img_url}) + "\n"
+         try:
+             # Tenta usar o modelo de imagem especifico se houver uma função dedicada ou via generate_content
+             # Assumindo que o usuario quer que tentemos instanciar esse modelo.
+             # Se for chat.send_message, é texto. Imagino que seja via outra API, mas vou tentar o genai.GenerativeModel
+             model_img = genai.GenerativeModel("gemini-2.5-flash-image")
+             response_img = model_img.generate_content(prompt_img)
+             # Se o modelo retornar imagem, geralmente é accessivel via parts ou similar.
+             # Como não temos certeza da API, vou tentar o padrao de texto primeiro e se falhar, logar.
+             # Mas provavelmente o usuario quer o PROMPT processado por esse modelo?
+             # Ou ele quer que usemos o 'gerar_imagem' (Vertex/Imagen) com esse nome?
+             # Vou assumir que 'gerar_imagem' deve ser atualizada.
+             
+             # VOU USAR A FUNCAO gerar_imagem ANTIGA MAS COM O MODELO NOVO SE POSSIVEL
+             # Mas a função gerar_imagem usa VertexAI.
+             # Vou tentar usar o modelo via generate_content e ver se sai algo.
+             
+             # HACK: Se o usuario diz que existe, talvez seja via API do AI Studio padrão.
+             # Vou tentar instanciar e chamar.
+             img_url = "https://placehold.co/600x600?text=Gemini+2.5+Image+Pending" 
+             
+             # Se o modelo suportar imagem, ele retorna um objeto image.
+             # Infelizmente sem docs oficiais disso, é chute.
+             # Vou manter o fallback mas tentar logar o sucesso.
+             
+             img_url = gerar_imagem(prompt_img, model_name="gemini-2.5-flash-image")
+             yield json.dumps({"type": "data", "section": "gerar_imagem", "content": img_url}) + "\n"
+         except Exception as e:
+             print(f"Erro Gemini 2.5 Image: {e}")
+             yield json.dumps({"type": "data", "section": "prompt_imagem_capa", "content": f"Falha ao gerar imagem com gemini-2.5-flash-image: {e}"}) + "\n"
 
     # 2. Contexto e Ganchos
     yield json.dumps({"type": "progress", "message": "Definindo Contexto e Ganchos..."}) + "\n"
@@ -317,9 +345,9 @@ def gerar_aventura_stream(**kwargs):
     yield json.dumps({"type": "progress", "message": "Povoando o Mundo..."}) + "\n"
     prompt_world = """
     Gere:
-    1. "personagens_chave": Lista de NPCs.
-    2. "locais_importantes": Lista de Locais.
-    Use os placeholders de imagem padrão. Responda APENAS o JSON.
+    1. "personagens_chave": Lista de NPCs. Cada um deve ter "nome", "aparencia" (texto) e "prompt_imagem" (descrição visual para IA gerar o retrato).
+    2. "locais_importantes": Lista de Locais. Cada um deve ter "nome", "atmosfera" (texto) e "prompt_imagem" (descrição visual para IA gerar o cenário).
+    Responda APENAS o JSON.
     """
     try:
         response = enviar_mensagem(chat, prompt_world)

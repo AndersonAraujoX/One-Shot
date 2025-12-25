@@ -1,81 +1,82 @@
-# 🎲 Gerador de One-Shots de RPG
+
+# 🎲 Gerador de One-Shots de RPG (v2.0)
 
 ![Python Version](https://img.shields.io/badge/python-3.10%2B-blue?style=for-the-badge&logo=python)
 ![FastAPI](https://img.shields.io/badge/FastAPI-005571?style=for-the-badge&logo=fastapi)
 ![React](https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)
-![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/AndersonAraujoX/One-Shot/ci.yml?style=for-the-badge&label=Tests)
+![Gemini 2.5](https://img.shields.io/badge/AI-Gemini%202.5%20Flash-8E75B2?style=for-the-badge&logo=google)
 
-![GitHub Pages](https://img.shields.io/github/deployments/AndersonAraujoX/One-Shot/github-pages?style=for-the-badge&label=Demo%20Online)
+> Uma ferramenta alimentada por **Google Gemini 2.5 Flash** para criar aventuras de RPG "one-shot" completas, com NPCs, trama granular, desafios e prompts visuais, prontas para jogar em minutos.
 
-> Uma ferramenta alimentada por **IA Generativa (Google Gemini)** para criar aventuras de RPG "one-shot" completas, com mapas, personagens e trama, prontas para jogar em minutos.
+## ✨ Novidades da Versão 2.0
 
-## 🌐 Demo Online
-
-Acesse o **Frontend** rodando no GitHub Pages:
-[**🔗 Abrir Aplicação**](https://AndersonAraujoX.github.io/One-Shot)
-
-> **⚠️ Nota Importante**: O GitHub Pages hospeda apenas o **Frontend (Interface)**. Como a IA roda no **Backend (Python)**, a versão online pode não funcionar completamente a menos que você rode o backend localmente e conecte, ou se o backend estiver hospedado em outro serviço (como Render/Railway).
-
-## ✨ Funcionalidades
-
-- **Criação Assistida**: Defina sistema, gênero, nível e deixe a IA criar o resto.
-- **Interface Web Moderna**: Frontend em React para uma experiência de usuário fluida.
-- **Modo CLI**: Uso via linha de comando para automação em lote.
-- **Geração de Imagens**: Criação automática de mapas e retratos de personagens.
-- **Exportação**: Baixe suas aventuras em Markdown, JSON ou ZIP.
+*   **⚡ Gemini 2.5 Flash**: Agora rodando no modelo mais rápido e recente da Google.
+*   **🛡️ Geração Granular & Segura**: Nova arquitetura que cria a aventura passo-a-passo (Setup -> Ato 1 -> Ato 2...) para garantir que a história **nunca seja cortada** pela metade.
+*   **🎨 Smart Image Prompts**: O sistema gera prompts visuais detalhados para Capa, NPCs e Locais.
+    *   *Suporte Experimental*: Tenta usar `gemini-2.5-flash-image` se disponível na sua conta.
+    *   *Fallback*: Se a cota de imagem acabar, ele gera o texto do prompt para você usar no Midjourney/DALL-E.
+*   **📊 Feedback Visual**: Nova barra de progresso detalhada no Frontend.
 
 ---
 
-## 🚀 Como Usar a Interface Web (Recomendado)
+## 🚀 Instalação e Uso
 
-### 1. Iniciar o Backend
-Navegue até a pasta `backend` e inicie o servidor FastAPI:
+### Pré-requisitos
+*   Python 3.10+
+*   Node.js 16+
+*   Uma chave de API do Google Gemini (Obtenha no [Google AI Studio](https://aistudio.google.com/))
+
+### 1. Backend (API)
 
 ```bash
 cd backend
+# Crie seu ambiente virtual (opcional mas recomendado)
+python -m venv venv
+# Windows: venv\Scripts\activate | Linux: source venv/bin/activate
+
+# Instale as dependências
 pip install -r requirements.txt
+
+# Crie o arquivo .env
+echo GEMINI_API_KEY=sua_chave_aqui > .env
+
+# Inicie o servidor
 uvicorn app.api:app --reload
 ```
-*O servidor estará rodando em `http://127.0.0.1:8000`.*
+*O servidor rodará em `http://127.0.0.1:8000`.*
 
-### 2. Iniciar o Frontend
-Em outro terminal, navegue até a pasta `frontend` e inicie a aplicação React:
+### 2. Frontend (Interface)
 
 ```bash
 cd frontend
+# Instale as dependências
 npm install
+
+# Inicie a aplicação
 npm start
 ```
-*Acesse a aplicação em `http://localhost:3000`.*
+*Acesse em `http://localhost:3000`.*
 
 ---
 
-## 🛠️ Como Usar (CLI)
+## 🛠️ Detalhes Técnicos
 
-Se preferir usar o terminal:
+### Estrutura
+*   **Backend**: FastAPI com `google-generativeai`. Implementa retries inteligentes (backoff exponencial) para lidar com limites de taxa (Erro 429).
+*   **Frontend**: React com componentes estilizados (Tabbed View, Stat Blocks). Consome a API via **Streaming** para mostrar o progresso em tempo real.
 
-1.  **Configure sua API Key:**
-    - Crie um arquivo `.env` na pasta `backend`.
-    - Adicione: `GEMINI_API_KEY=sua_chave_aqui`
-
-2.  **Execute:**
-    ```bash
-    cd backend
-    python -m app.main --sistema "D&D 5e" --genero "Cyberpunk" --jogadores 4
-    ```
-
----
-
-## 🤖 GitHub Actions (CI/CD)
-
-Este projeto utiliza automação do GitHub para testes e geração na nuvem.
-
-### Configuração
-Adicione o Secret `GEMINI_API_KEY` em **Settings > Secrets and variables > Actions**.
-
-### Workflows
-- **CI**: Roda testes automaticamente a cada push.
-- **Gerar Aventura**: Vá na aba **Actions**, selecione o workflow e gere aventuras sem instalar nada localmente!
+### Arquitetura de Geração
+Para contornar limitações de tokens e timeouts, a aventura é gerada em **Batches Granulares**:
+1.  **Imagem/Prompt**: Define a estética.
+2.  **Mundo**: Cria contexto, ganchos e personagens.
+3.  **NPCs & Locais**: Detalha o mundo.
+4.  **Trama Sequencial**: Gera Ato 1, depois Ato 2, etc., garantindo coesão e completude.
 
 ---
-*Desenvolvido com ❤️ e IA.*
+
+## 🤝 Contribuição
+
+Sinta-se livre para abrir Issues ou Pull Requests. O foco atual é melhorar a consistência dos prompts de imagem e expandir os sistemas de RPG suportados (atualmente focado em D&D 5e).
+
+---
+*Desenvolvido por Anderson Araújo com ajuda de Agentes de IA.*

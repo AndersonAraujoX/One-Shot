@@ -52,7 +52,7 @@ function App() {
                     });
 
                     // Incremento suave de progresso conforme dados chegam
-                    if (chunk.section === 'gerar_imagem') setProgress(25);
+                    if (chunk.section === 'gerar_imagem') setProgress(15);
                     if (chunk.section === 'locais_importantes') setProgress(55); // Fim do Setup
                     if (chunk.section === 'resumo') setProgress(95); // Fim da Trama
 

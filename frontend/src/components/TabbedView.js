@@ -145,110 +145,143 @@ function TabbedView({ adventure, onUpdate }) {
         }
     };
 
-    const renderContent = () => {
-        const content = getTabContent(activeTab);
-        const title = activeTab === 'sinopse' ? adventure.titulo : activeTab.replace(/_/g, ' ');
-        const isEditing = editingTab === activeTab;
+    const content = getTabContent(activeTab);
+    const title = activeTab === 'sinopse' ? adventure.titulo : activeTab.replace(/_/g, ' ');
+    const isEditing = editingTab === activeTab;
 
-        // Special handling for complex objects like Characters and Locations
-        if ((activeTab === 'personagens' || activeTab === 'locais') && !isEditing) {
-            return (
-                <div className="adventure-section">
-                    <div className="section-header">
-                        <h2>{title}</h2>
-                        {/* Editing complex objects is harder, let's skip for now or implement JSON edit */}
-                        <button onClick={() => handleCopy(JSON.stringify(content, null, 2))} className="copy-button">Copiar JSON</button>
-                    </div>
-                    <div className="section-content cards-container">
-                        {Array.isArray(content) ? (
-                            content.map((item, idx) => (
-                                <div key={idx} className="card-wrapper">
-                                    {activeTab === 'personagens' ? (
-                                        <StatBlock
-                                            name={item.nome}
-                                            description={item.aparencia}
-                                            stats={item.estatisticas || item.aparencia}
-                                        />
-                                    ) : (
-                                        <div className="card">
-                                            <h3>{item.nome}</h3>
-                                            <ReactMarkdown>{item.aparencia || item.atmosfera}</ReactMarkdown>
-                                            {item.url_imagem && <img src={item.url_imagem} alt={item.nome} />}
-                                        </div>
-                                    )}
-                                </div>
-                            ))
-                        ) : (
-                            <div className="card">
-                                <ReactMarkdown>{typeof content === 'string' ? content : JSON.stringify(content)}</ReactMarkdown>
-                            </div>
+    // Special handling for Sinopse to include Cover Prompt
+    if (activeTab === 'sinopse') {
+        return (
+            <div className="adventure-section">
+                <div className="section-header">
+                    <h2>{title}</h2>
+                    <div className="actions">
+                        <button onClick={() => handleCopy(content)} className="copy-button">Copiar Sinopse</button>
+                        {adventure.prompt_imagem_capa && (
+                            <button onClick={() => handleCopy(adventure.prompt_imagem_capa)} className="copy-button" style={{ backgroundColor: '#e91e63' }}>Copiar Prompt Capa</button>
                         )}
                     </div>
                 </div>
-            );
-        }
-
-        // Prepare content for display/edit
-        let displayContent = content;
-        if (Array.isArray(content)) {
-            displayContent = content.map(item => `- ${item}`).join('\n');
-        }
-
-        return (
-            <Section
-                title={title}
-                content={displayContent}
-                onCopy={() => handleCopy(displayContent)}
-                onEdit={() => setEditingTab(activeTab)}
-                isEditing={isEditing}
-                onSave={handleSave}
-                onCancel={() => setEditingTab(null)}
-            />
+                <div className="section-content">
+                    {adventure.prompt_imagem_capa && (
+                        <div className="prompt-box" style={{ background: '#f0f0f0', padding: '10px', borderRadius: '5px', marginBottom: '15px', borderLeft: '4px solid #e91e63' }}>
+                            <strong>🎨 Prompt sugerido para Capa:</strong>
+                            <p style={{ fontStyle: 'italic', fontSize: '0.9rem' }}>{adventure.prompt_imagem_capa}</p>
+                        </div>
+                    )}
+                    <ReactMarkdown>{content}</ReactMarkdown>
+                </div>
+            </div>
         );
-    };
+    }
 
-    const sectionOrder = [
-        'sinopse', 'ganchos', 'personagens', 'personagens_chave', 'locais_importantes',
-        'cenario', 'desafios',
-        'ato1', 'ato2', 'ato3', 'ato4', 'ato5',
-        'resumo'
-    ];
+    // Special handling for complex objects like Characters and Locations
+    if ((activeTab === 'personagens' || activeTab === 'locais') && !isEditing) {
+        return (
+            <div className="adventure-section">
+                <div className="section-header">
+                    <h2>{title}</h2>
+                    {/* Editing complex objects is harder, let's skip for now or implement JSON edit */}
+                    <button onClick={() => handleCopy(JSON.stringify(content, null, 2))} className="copy-button">Copiar JSON</button>
+                </div>
+                <div className="section-content cards-container">
+                    {Array.isArray(content) ? (
+                        content.map((item, idx) => (
+                            <div key={idx} className="card-wrapper">
+                                {activeTab === 'personagens' ? (
+                                    <div className="card">
+                                        <h3>{item.nome}</h3>
+                                        <p><strong>Aparência:</strong> {item.aparencia}</p>
+                                        {item.prompt_imagem && (
+                                            <div className="mini-prompt" style={{ marginTop: '10px', fontSize: '0.8rem', color: '#666' }}>
+                                                <strong>🎨 Prompt:</strong> {item.prompt_imagem}
+                                            </div>
+                                        )}
+                                    </div>
+                                ) : (
+                                    <div className="card">
+                                        <h3>{item.nome}</h3>
+                                        <p><strong>Atmosfera:</strong> {item.atmosfera}</p>
+                                        {item.prompt_imagem && (
+                                            <div className="mini-prompt" style={{ marginTop: '10px', fontSize: '0.8rem', color: '#666' }}>
+                                                <strong>🎨 Prompt:</strong> {item.prompt_imagem}
+                                            </div>
+                                        )}
+                                    </div>
+                                )}
+                            </div>
+                        ))
+                    ) : (
+                        <div className="card">
+                            <ReactMarkdown>{typeof content === 'string' ? content : JSON.stringify(content)}</ReactMarkdown>
+                        </div>
+                    )}
+                </div>
+            </div>
+        );
+    }
 
-    const sections = Object.keys(adventure).sort((a, b) => {
-        const indexA = sectionOrder.indexOf(a);
-        const indexB = sectionOrder.indexOf(b);
-        if (indexA === -1 && indexB === -1) return a.localeCompare(b);
-        if (indexA === -1) return 1;
-        if (indexB === -1) return -1;
-        return indexA - indexB;
-    }).filter(k => k !== 'titulo');
-
-    // Remove duplicates if any (though keys are unique)
-    // Handle special rendering removal if needed but our sort handles it.
-    // We want 'personagens' (raw) and 'personagens_chave' (npc) to be handled.
-    // 'personagens' might be the player chars. 
-    // Let's filter out internal keys if necessary.
-
+    // Prepare content for display/edit
+    let displayContent = content;
+    if (Array.isArray(content)) {
+        displayContent = content.map(item => `- ${item}`).join('\n');
+    }
 
     return (
-        <div className="tabbed-view">
-            <div className="tab-buttons">
-                {sections.map(section => (
-                    <button
-                        key={section}
-                        className={activeTab === section ? 'active' : ''}
-                        onClick={() => { setActiveTab(section); setEditingTab(null); }}
-                    >
-                        {section.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}
-                    </button>
-                ))}
-                <button onClick={handleExport} className="export-button">Exportar Aventura</button>
-            </div>
-            <div className="tab-content">
-                {renderContent()}
-            </div>
-        </div>
+        <Section
+            title={title}
+            content={displayContent}
+            onCopy={() => handleCopy(displayContent)}
+            onEdit={() => setEditingTab(activeTab)}
+            isEditing={isEditing}
+            onSave={handleSave}
+            onCancel={() => setEditingTab(null)}
+        />
     );
+};
+
+const sectionOrder = [
+    'sinopse', 'ganchos', 'personagens', 'personagens_chave', 'locais_importantes',
+    'cenario', 'desafios',
+    'ato1', 'ato2', 'ato3', 'ato4', 'ato5',
+    'resumo'
+];
+
+const sections = Object.keys(adventure).sort((a, b) => {
+    const indexA = sectionOrder.indexOf(a);
+    const indexB = sectionOrder.indexOf(b);
+    if (indexA === -1 && indexB === -1) return a.localeCompare(b);
+    if (indexA === -1) return 1;
+    if (indexB === -1) return -1;
+    return indexA - indexB;
+}).filter(k => k !== 'titulo');
+
+// Remove duplicates if any (though keys are unique)
+// Handle special rendering removal if needed but our sort handles it.
+// We want 'personagens' (raw) and 'personagens_chave' (npc) to be handled.
+// 'personagens' might be the player chars. 
+// Let's filter out internal keys if necessary.
+
+
+return (
+    <div className="tabbed-view">
+        <div className="tab-buttons">
+            {sections.map(section => (
+                <button
+                    key={section}
+                    className={activeTab === section ? 'active' : ''}
+                    onClick={() => { setActiveTab(section); setEditingTab(null); }}
+                >
+                    {section.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}
+                </button>
+            ))}
+            <button onClick={handleExport} className="export-button">Exportar Aventura</button>
+        </div>
+        <div className="tab-content">
+            {renderContent()}
+        </div>
+    </div>
+);
 }
 
 export default TabbedView;
