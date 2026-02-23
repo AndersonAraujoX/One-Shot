@@ -344,29 +344,76 @@ def gerar_aventura_stream(**kwargs):
     # 4. NPCs e Locais
     yield json.dumps({"type": "progress", "message": "Povoando o Mundo..."}) + "\n"
     prompt_world = """
-    Gere:
-    1. "personagens_chave": Lista de NPCs. Cada um deve ter "nome", "aparencia" (texto) e "prompt_imagem" (descrição visual para IA gerar o retrato).
-    2. "locais_importantes": Lista de Locais. Cada um deve ter "nome", "atmosfera" (texto) e "prompt_imagem" (descrição visual para IA gerar o cenário).
-    Responda APENAS o JSON.
+    Gere "personagens_chave" e "locais_importantes".
+    Formato JSON Obrigatório:
+    {
+        "personagens_chave": [
+            {
+                "nome": "Nome do NPC",
+                "aparencia": "Descrição física", 
+                "prompt_imagem": "Prompt visual detalhado para IA (retrato)"
+            }
+        ],
+        "locais_importantes": [
+            {
+                "nome": "Nome do Local",
+                "atmosfera": "Descrição do clima/sensação",
+                "prompt_imagem": "Prompt visual detalhado para IA (paisagem)"
+            }
+        ]
+    }
     """
     try:
         response = enviar_mensagem(chat, prompt_world)
-        data = json.loads(response.replace("```json", "").replace("```", "").strip())
-        for key in ["personagens_chave", "locais_importantes"]:
-             if key in data: yield json.dumps({"type": "data", "section": key, "content": data[key]}) + "\n"
+        try:
+            data = json.loads(response.replace("```json", "").replace("```", "").strip())
+            for key in ["personagens_chave", "locais_importantes"]:
+                 if key in data: yield json.dumps({"type": "data", "section": key, "content": data[key]}) + "\n"
+        except json.JSONDecodeError:
+            print(f"Warn: JSON Mundo falhou, enviando texto.")
+            yield json.dumps({"type": "data", "section": "personagens_chave", "content": response}) + "\n"
+            
     except Exception as e:
         print(f"Erro NPCs/Locais: {e}")
+        yield json.dumps({"type": "data", "section": "personagens_chave", "content": f"Erro ao gerar mundo: {str(e)}"}) + "\n"
 
     # 5. Trama - Infraestrutura
     yield json.dumps({"type": "progress", "message": "Preparando o Terreno (Cenários)..."}) + "\n"
-    prompt_infra = """Gere 'cenario' (prompts de mapa) e 'desafios' (lista). Responda JSON."""
+    prompt_infra = """
+    Gere 'cenario' e 'desafios' para a aventura.
+    Formato JSON Obrigatório:
+    {
+        "cenario": [
+            {
+                "nome": "Nome do Local/Ambiente",
+                "descricao": "Descrição visual e sensorial",
+                "prompt_imagem": "Prompt para IA gerar a imagem deste cenário"
+            }
+        ],
+        "desafios": [
+            {
+                "nome": "Nome do Desafio (Armadilha, Enigma, etc)",
+                "descricao": "Como funciona",
+                "tipo": "Combate/Social/Exploração",
+                "efeito": "Consequência de falha/sucesso"
+            }
+        ]
+    }
+    """
     try:
         response = enviar_mensagem(chat, prompt_infra)
-        data = json.loads(response.replace("```json", "").replace("```", "").strip())
-        for key in ["cenario", "desafios"]:
-             if key in data: yield json.dumps({"type": "data", "section": key, "content": data[key]}) + "\n"
+        try:
+             data = json.loads(response.replace("```json", "").replace("```", "").strip())
+             for key in ["cenario", "desafios"]:
+                  if key in data: yield json.dumps({"type": "data", "section": key, "content": data[key]}) + "\n"
+        except json.JSONDecodeError:
+             print(f"Warn: JSON Infra falhou, enviando texto.")
+             # Envia como 'cenario' genérico ou divide? Vamos enviar como cenario para não perder.
+             yield json.dumps({"type": "data", "section": "cenario", "content": response}) + "\n"
+
     except Exception as e:
          print(f"Erro Infra: {e}")
+         yield json.dumps({"type": "data", "section": "cenario", "content": f"Erro ao gerar cenários: {str(e)}"}) + "\n"
 
     # 6. Trama - Atos Individuais
     atos_steps = [
@@ -380,15 +427,44 @@ def gerar_aventura_stream(**kwargs):
     for ato_key, msg in atos_steps:
         yield json.dumps({"type": "progress", "message": msg}) + "\n"
         extra_instr = ' e "resumo"' if ato_key == "ato5" else ""
-        prompt_ato = f"""Gere apenas o '{ato_key}'{extra_instr}. Responda JSON."""
+        prompt_ato = f"""
+        Gere o '{ato_key}' da aventura{extra_instr}.
+        Formato JSON Obrigatório:
+        {{
+            "{ato_key}": {{
+                "titulo": "Título do Ato",
+                "sinopse": "Resumo do que acontece",
+                "cenas": [
+                    {{
+                        "nome": "Nome da Cena",
+                        "locais": ["Local A"],
+                        "personagens": ["NPC A"],
+                        "descricao": "Descrição narrativa detalhada do que acontece.",
+                        "desafios_associados": ["Desafio X"]
+                    }}
+                ]
+            }}
+            {', "resumo": "Resumo final da campanha"' if ato_key == "ato5" else ''}
+        }}
+        """
         try:
             response = enviar_mensagem(chat, prompt_ato)
             try:
                 # Tenta JSON primeiro
                 clean = response.replace("```json", "").replace("```", "").strip()
                 data = json.loads(clean)
-                if ato_key in data: yield json.dumps({"type": "data", "section": ato_key, "content": data[ato_key]}) + "\n"
-                if "resumo" in data: yield json.dumps({"type": "data", "section": "resumo", "content": data["resumo"]}) + "\n"
+                
+                # LÓGICA ROBUSTA: Verifica se veio como { "ato1": {...} } ou direto { "titulo": ... }
+                if ato_key in data:
+                     yield json.dumps({"type": "data", "section": ato_key, "content": data[ato_key]}) + "\n"
+                elif "titulo" in data or "cenas" in data:
+                     # O modelo mandou o objeto direto, sem o wrapper "ato1"
+                     print(f"Info: Aceitando JSON direto para {ato_key}")
+                     yield json.dumps({"type": "data", "section": ato_key, "content": data}) + "\n"
+                
+                if "resumo" in data:
+                     yield json.dumps({"type": "data", "section": "resumo", "content": data["resumo"]}) + "\n"
+                     
             except json.JSONDecodeError:
                 # Fallback: Envia texto bruto se não for JSON válido
                 print(f"Warn: JSON falhou para {ato_key}, enviando texto bruto.")

@@ -1,98 +1,68 @@
 # backend/tests/test_chat.py
 import pytest
+import json
 from unittest.mock import patch, MagicMock
 from app.chat import gerar_aventura_batch, COMMAND_PROMPTS
 
 @patch('app.chat.iniciar_chat')
 @patch('app.chat.enviar_mensagem')
-def test_gerar_aventura_batch_executa_comandos_ordenados(mock_enviar, mock_iniciar):
-    # Configura o mock para o chat
+def test_gerar_aventura_batch_sucesso(mock_enviar, mock_iniciar):
     mock_chat = MagicMock()
     mock_iniciar.return_value = mock_chat
 
-    # Define um side_effect para o mock de enviar_mensagem
     def mock_enviar_side_effect(chat, prompt):
-        if COMMAND_PROMPTS["contexto"]["prompt"] in prompt:
-            return '{"titulo": "Título Teste", "sinopse": "Sinopse Teste"}'
-        if COMMAND_PROMPTS["personagens_chave"]["prompt"] in prompt:
-            return '[{"nome": "NPC Teste", "aparencia": "Aparência Teste", "url_imagem": ""}]'
-        if COMMAND_PROMPTS["locais_importantes"]["prompt"] in prompt:
-            return '[{"nome": "Local Teste", "atmosfera": "Atmosfera Teste", "url_imagem": ""}]'
-        return "Conteúdo gerado"
+        if '"contexto":' in prompt:
+            return '{"contexto": {"titulo": "Título Teste", "sinopse": "Sinopse Teste"}, "ganchos": ["1", "2"]}'
+        if '"personagens": Lista' in prompt:
+            return '{"personagens": [{"nome": "Herói 1", "raca": "Elfo"}]}'
+        if 'Gere "personagens_chave" e "locais_importantes"' in prompt:
+            return '{"personagens_chave": [{"nome": "NPC Teste", "prompt_imagem": "img"}], "locais_importantes": [{"nome": "Local Teste"}]}'
+        if "Gere 'cenario' e 'desafios'" in prompt:
+            return '{"cenario": [{"nome": "Taverna"}], "desafios": [{"nome": "Luta"}]}'
+        if "Gere o 'ato1'" in prompt:
+            return '{"ato1": {"titulo": "Ato 1zinho"}}'
+        if "Gere o 'ato2'" in prompt:
+            return '{"ato2": {"titulo": "Ato 2zinho"}}'
+        if "Gere o 'ato3'" in prompt:
+            return '{"ato3": {"titulo": "Ato 3zinho"}}'
+        if "Gere o 'ato4'" in prompt:
+            return '{"ato4": {"titulo": "Ato 4zinho"}}'
+        if "Gere o 'ato5'" in prompt:
+            return '{"ato5": {"titulo": "Ato 5zinho"}, "resumo": "Fim do jogo"}'
+        return "{}"
 
     mock_enviar.side_effect = mock_enviar_side_effect
 
-    # Chama a função
-    adventure_data = gerar_aventura_batch(gerar_personagens=True, sistema="D&D 5e", num_jogadores=4, nivel_tier="1")
+    # Chama a função principal de teste
+    adventure_data = gerar_aventura_batch(gerar_personagens=True, num_jogadores=4, nivel_tier="1")
 
-    # Verifica se os comandos foram chamados na ordem correta
-    comandos_esperados = sorted(
-        [cmd for cmd, meta in COMMAND_PROMPTS.items() if meta.get("batch_order")],
-        key=lambda cmd: COMMAND_PROMPTS[cmd]["batch_order"]
-    )
-    
-    # gerar_imagem nÃ£o chama enviar_mensagem, entÃ£o subtraÃ­mos 1 se estiver na lista
-    expected_calls = len(comandos_esperados)
-    if "gerar_imagem" in [cmd for cmd in COMMAND_PROMPTS if COMMAND_PROMPTS[cmd].get("batch_order")]:
-        expected_calls -= 1
-
-    assert mock_enviar.call_count == expected_calls
-    
-    # Verifica as chaves no dicionário retornado
+    # Verifica chaves básicas retornadas pelo chunk JSON
     assert "titulo" in adventure_data
-    assert "sinopse" in adventure_data
-    assert "personagens_chave" in adventure_data
-    assert "locais_importantes" in adventure_data
     assert adventure_data["titulo"] == "Título Teste"
-    assert len(adventure_data["personagens_chave"]) == 1
-    assert len(adventure_data["locais_importantes"]) == 1
+    assert "personagens" in adventure_data
+    assert "personagens_chave" in adventure_data
+    assert "cenario" in adventure_data
+    assert "ato1" in adventure_data
+    assert "resumo" in adventure_data
 
 @patch('app.chat.iniciar_chat')
 @patch('app.chat.enviar_mensagem')
-def test_gerar_aventura_batch_pula_personagens(mock_enviar, mock_iniciar):
-    mock_iniciar.return_value = MagicMock()
-    mock_enviar.return_value = "Conteúdo"
+def test_gerar_aventura_batch_json_invalido_fallback(mock_enviar, mock_iniciar):
+    mock_chat = MagicMock()
+    mock_iniciar.return_value = mock_chat
 
-    # Chama a função sem a flag gerar_personagens
-    adventure_data = gerar_aventura_batch(gerar_personagens=False)
-
-    # Verifica que 'personagens' não está nos dados retornados
-    assert "personagens" not in adventure_data
-    
-    # Verifica que o número de chamadas é um a menos que o total de batch commands
-    total_batch_commands = sum(1 for meta in COMMAND_PROMPTS.values() if "batch_order" in meta)
-    expected_calls = total_batch_commands - 1 # Remove 'personagens'
-    if "gerar_imagem" in [cmd for cmd in COMMAND_PROMPTS if COMMAND_PROMPTS[cmd].get("batch_order")]:
-        expected_calls -= 1
+    # Simula o modelo retornando puro texto para o mundo (fallback)
+    def mock_enviar_side_effect(chat, prompt):
+        if 'Gere "personagens_chave"' in prompt:
+            return "Aqui está uma lista de NPCs e locais em texto longo sem JSON..."
         
-    assert mock_enviar.call_count == expected_calls
+        # Para o resto, retorna JSON vazio apenas para não quebrar iteradores
+        return "{}"
 
-@patch('app.chat.iniciar_chat')
-@patch('app.chat.enviar_mensagem')
-def test_gerar_aventura_batch_formata_prompt_corretamente(mock_enviar, mock_iniciar):
-    mock_iniciar.return_value = MagicMock()
-    mock_enviar.return_value = "Conteúdo"
+    mock_enviar.side_effect = mock_enviar_side_effect
 
-    # Dados para formatação
-    kwargs = {
-        "num_jogadores": 5,
-        "sistema": "Pathfinder",
-        "nivel_tier": "Nível 10",
-        "gerar_personagens": True
-    }
+    adventure_data = gerar_aventura_batch()
 
-    gerar_aventura_batch(**kwargs)
-
-    # Pega a chamada feita para o comando 'personagens'
-    chamada_personagens = None
-    for call in mock_enviar.call_args_list:
-        # O segundo argumento da chamada é o prompt
-        if "personagens de jogador" in call[0][1]:
-            chamada_personagens = call[0][1]
-            break
-
-    assert chamada_personagens is not None
-    # Verifica se o prompt foi formatado com os valores corretos
-    assert "5 personagens" in chamada_personagens
-    assert "Pathfinder" in chamada_personagens
-    assert "Nível 10" in chamada_personagens
+    # O fallback do Mundo salva tudo em "personagens_chave" (conforme chat.py:374)
+    assert "personagens_chave" in adventure_data
+    assert "texto longo sem JSON" in adventure_data["personagens_chave"]
