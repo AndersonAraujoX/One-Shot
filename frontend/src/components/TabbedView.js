@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import ReactMarkdown from 'react-markdown';
 import './TabbedView.css';
-import StatBlock from './StatBlock';
 
 const Section = ({ title, content, onCopy, onEdit, isEditing, onSave, onCancel }) => {
     const [editValue, setEditValue] = useState(content);
@@ -166,9 +165,9 @@ function TabbedView({ adventure, onUpdate }) {
                     <div className="section-content">
                         {adventure.prompt_imagem_capa && (
                             <div className="cover-image-container" style={{ marginBottom: '20px', textAlign: 'center' }}>
-                                <img 
-                                    src={`https://image.pollinations.ai/prompt/${encodeURIComponent(adventure.prompt_imagem_capa)}?width=800&height=400&nologo=true`} 
-                                    alt="Capa da Aventura" 
+                                <img
+                                    src={`https://image.pollinations.ai/prompt/${encodeURIComponent(adventure.prompt_imagem_capa)}?width=800&height=400&nologo=true`}
+                                    alt="Capa da Aventura"
                                     style={{ width: '100%', maxWidth: '800px', borderRadius: '8px', boxShadow: '0 4px 12px rgba(0,0,0,0.3)' }}
                                 />
                                 <div className="prompt-box" style={{ background: 'rgba(255,255,255,0.05)', padding: '10px', borderRadius: '5px', marginTop: '10px', fontSize: '0.8rem', color: '#aaa', textAlign: 'left', borderLeft: '4px solid #e91e63' }}>
@@ -210,9 +209,9 @@ function TabbedView({ adventure, onUpdate }) {
                                         {/* Imagem Visual Renderizada pelo Prompt */}
                                         {item.prompt_imagem && (
                                             <div className="generated-image" style={{ marginTop: '15px' }}>
-                                                <img 
-                                                    src={`https://image.pollinations.ai/prompt/${encodeURIComponent(item.prompt_imagem)}?width=400&height=400&nologo=true&seed=${idx}`} 
-                                                    alt={item.nome || 'Imagem Gerada'} 
+                                                <img
+                                                    src={`https://image.pollinations.ai/prompt/${encodeURIComponent(item.prompt_imagem)}?width=400&height=400&nologo=true&seed=${idx}`}
+                                                    alt={item.nome || 'Imagem Gerada'}
                                                     style={{ width: '100%', borderRadius: '4px', boxShadow: '0 2px 4px rgba(0,0,0,0.2)' }}
                                                     loading="lazy"
                                                 />

@@ -4,7 +4,6 @@ import AdventureForm from './components/AdventureForm';
 import TabbedView from './components/TabbedView';
 import AdventureList from './components/AdventureList';
 import NPCChat from './components/NPCChat';
-import LoadingSpinner from './components/common/LoadingSpinner';
 import ProgressBar from './components/common/ProgressBar';
 import ErrorDisplay from './components/common/ErrorDisplay';
 import './App.css';
