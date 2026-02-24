@@ -62,7 +62,7 @@ function App() {
             },
             (err) => {
                 console.error('Error generating adventure:', err);
-                setError('Não foi possível carregar a aventura. Verifique o console.');
+                setError('Falha de conexão: O servidor na nuvem pode estar "dormindo" (ele hiberna após inatividade no plano gratuito). Aguarde 1 minuto e clique para Gerar novamente!');
                 setLoading(false);
             },
             () => {
