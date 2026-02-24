@@ -151,28 +151,32 @@ function TabbedView({ adventure, onUpdate }) {
 
         // Special handling for Sinopse to include Cover Prompt
         if (activeTab === 'sinopse') {
+            const coverUrl = adventure.gerar_imagem || (adventure.prompt_imagem_capa ? `https://image.pollinations.ai/prompt/${encodeURIComponent(adventure.prompt_imagem_capa)}?width=800&height=400&nologo=true` : null);
+
             return (
                 <div className="adventure-section">
                     <div className="section-header">
                         <h2>{title}</h2>
                         <div className="actions">
                             <button onClick={() => handleCopy(content)} className="copy-button">Copiar Sinopse</button>
-                            {adventure.prompt_imagem_capa && (
-                                <button onClick={() => handleCopy(adventure.prompt_imagem_capa)} className="copy-button" style={{ backgroundColor: '#e91e63' }}>Copiar Prompt Capa</button>
+                            {coverUrl && (
+                                <button onClick={() => handleCopy(coverUrl)} className="copy-button" style={{ backgroundColor: '#e91e63' }}>Copiar URL Capa</button>
                             )}
                         </div>
                     </div>
                     <div className="section-content">
-                        {adventure.prompt_imagem_capa && (
+                        {coverUrl && (
                             <div className="cover-image-container" style={{ marginBottom: '20px', textAlign: 'center' }}>
                                 <img
-                                    src={`https://image.pollinations.ai/prompt/${encodeURIComponent(adventure.prompt_imagem_capa)}?width=800&height=400&nologo=true`}
+                                    src={coverUrl}
                                     alt="Capa da Aventura"
                                     style={{ width: '100%', maxWidth: '800px', borderRadius: '8px', boxShadow: '0 4px 12px rgba(0,0,0,0.3)' }}
                                 />
-                                <div className="prompt-box" style={{ background: 'rgba(255,255,255,0.05)', padding: '10px', borderRadius: '5px', marginTop: '10px', fontSize: '0.8rem', color: '#aaa', textAlign: 'left', borderLeft: '4px solid #e91e63' }}>
-                                    <strong>🎨 Prompt da Capa:</strong> {adventure.prompt_imagem_capa}
-                                </div>
+                                {adventure.prompt_imagem_capa && (
+                                    <div className="prompt-box" style={{ background: 'rgba(255,255,255,0.05)', padding: '10px', borderRadius: '5px', marginTop: '10px', fontSize: '0.8rem', color: '#aaa', textAlign: 'left', borderLeft: '4px solid #e91e63' }}>
+                                        <strong>🎨 Prompt da Capa:</strong> {adventure.prompt_imagem_capa}
+                                    </div>
+                                )}
                             </div>
                         )}
                         <ReactMarkdown>{content}</ReactMarkdown>
@@ -328,7 +332,7 @@ function TabbedView({ adventure, onUpdate }) {
         if (indexA === -1) return 1;
         if (indexB === -1) return -1;
         return indexA - indexB;
-    }).filter(k => k !== 'titulo');
+    }).filter(k => k !== 'titulo' && k !== 'gerar_imagem' && k !== 'prompt_imagem_capa');
 
     // Remove duplicates if any (though keys are unique)
     // Handle special rendering removal if needed but our sort handles it.
