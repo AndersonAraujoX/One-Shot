@@ -16,6 +16,8 @@ function App() {
     const [error, setError] = useState(null);
     const [view, setView] = useState('list'); // 'list', 'create', 'view', 'chat'
 
+    const [simulateSleep, setSimulateSleep] = useState(false);
+
     const handleGenerateAdventure = async (config) => {
         setLoading(true);
         setLoadingMessage('Iniciando geração...');
@@ -23,6 +25,14 @@ function App() {
         setError(null);
         setAdventure({}); // Start with empty object
         setView('view');
+
+        if (simulateSleep) {
+            setTimeout(() => {
+                setError('Falha de conexão: O servidor na nuvem pode estar "dormindo" (ele hiberna após inatividade no plano gratuito). Aguarde 1 minuto e clique para Gerar novamente!');
+                setLoading(false);
+            }, 3000);
+            return;
+        }
 
         await generateAdventureStream(
             config,
@@ -103,6 +113,17 @@ function App() {
                         <option value="fantasy">Fantasia</option>
                         <option value="cyberpunk">Cyberpunk</option>
                     </select>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginLeft: '15px' }}>
+                        <input
+                            type="checkbox"
+                            id="simulateSleep"
+                            checked={simulateSleep}
+                            onChange={(e) => setSimulateSleep(e.target.checked)}
+                        />
+                        <label htmlFor="simulateSleep" style={{ fontSize: '0.8rem', cursor: 'pointer', color: '#ff6b6b' }}>
+                            🧪 Testar "Servidor Dormindo"
+                        </label>
+                    </div>
                 </div>
                 <nav>
                     <button onClick={() => setView('list')}>Minhas Aventuras</button>
