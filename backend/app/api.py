@@ -22,6 +22,17 @@ Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
 
+from fastapi.middleware.cors import CORSMiddleware
+
+# Permite que o Frontend no GitHub Pages ou Localhost acesse esta API
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"], # Para produção restrita, troque "*" pela URL do seu GitHub Pages
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 import os
 
 # Garante que o diretório static existe
