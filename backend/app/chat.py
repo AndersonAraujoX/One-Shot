@@ -1,5 +1,6 @@
 # backend/app/chat.py
 import os
+import time
 import json
 import google.generativeai as genai
 from PIL import Image
@@ -164,13 +165,24 @@ def iniciar_chat(json_mode=False, sistema="Genérico", genero="Fantasia", temper
     )
     return model.start_chat(history=[])
 
+from tenacity import retry, stop_after_attempt, wait_exponential, retry_if_exception
+
+def is_retryable_error(exception):
+    err_str = str(exception).lower()
+    # Captura erros de limite de requisições da cota gratuita da API e erros de servidor
+    if "429" in err_str or "quota" in err_str or "exhausted" in err_str:
+        return True
+    if isinstance(exception, api_exceptions.InternalServerError) or "503" in err_str:
+        return True
+    return False
+
 def log_retry_attempt(retry_state):
-    print(f"[RETRY] Tentativa {retry_state.attempt_number} falhou. Aguardando para tentar novamente... (Erro: {retry_state.outcome.exception()})")
+    print(f"[RETRY] Rate Limit ou Erro da Google atingido (Tentativa {retry_state.attempt_number}). Aguardando 15s até 2min para tentar novamente... (Erro: {retry_state.outcome.exception()})")
 
 @retry(
-    stop=stop_after_attempt(6),
-    wait=wait_exponential(multiplier=2, min=10, max=90),
-    retry=retry_if_exception_type((api_exceptions.InternalServerError, api_exceptions.ResourceExhausted)),
+    stop=stop_after_attempt(5),
+    wait=wait_exponential(multiplier=2, min=20, max=120),  # Espera no minimo 20s no primeiro retry de cota
+    retry=retry_if_exception(is_retryable_error),
     reraise=True,
     before_sleep=log_retry_attempt
 )
@@ -182,6 +194,9 @@ def enviar_mensagem(chat, prompt: str, max_history_tokens: int = 10, json_mode: 
     """
     Envia uma mensagem para o chat com tratamento de erro e gerenciamento de histórico.
     """
+    # Cooldown preventivo de 4 segundos para mitigar o Rate Limit 429 da cota gratuita
+    time.sleep(4)
+
     # Limita o histórico para evitar excesso de tokens
     if len(chat.history) > max_history_tokens:
         # Mantém a instrução de sistema e as N últimas interações
@@ -395,64 +410,49 @@ def gerar_aventura_stream(**kwargs):
          print(f"Erro Infra: {e}")
          yield json.dumps({"type": "data", "section": "cenario", "content": f"Erro ao gerar cenários: {str(e)}"}) + "\n"
 
-    # 6. Trama - Atos Individuais
-    atos_steps = [
-        ("ato1", "Escrevendo Ato 1..."),
-        ("ato2", "Escrevendo Ato 2..."),
-        ("ato3", "Escrevendo Ato 3..."),
-        ("ato4", "Escrevendo Ato 4..."),
-        ("ato5", "Escrevendo Ato 5 e Resumo...")
-    ]
-
-    for ato_key, msg in atos_steps:
-        yield json.dumps({"type": "progress", "message": msg}) + "\n"
-        extra_instr = ' e "resumo"' if ato_key == "ato5" else ""
-        prompt_ato = f"""
-        Gere o '{ato_key}' da aventura{extra_instr}.
-        Formato JSON Obrigatório:
-        {{
-            "{ato_key}": {{
-                "titulo": "Título do Ato",
-                "sinopse": "Resumo do que acontece",
-                "cenas": [
-                    {{
-                        "nome": "Nome da Cena",
-                        "locais": ["Local A"],
-                        "personagens": ["NPC A"],
-                        "descricao": "Descrição narrativa detalhada do que acontece.",
-                        "desafios_associados": ["Desafio X"]
-                    }}
-                ]
-            }}
-            {', "resumo": "Resumo final da campanha"' if ato_key == "ato5" else ''}
-        }}
-        """
+    # 6. Trama - Atos Individuais (Agrupados para evitar o Erro 429 de Rate Limit)
+    yield json.dumps({"type": "progress", "message": "Escrevendo a História Completa (Atos 1 a 5)..."}) + "\n"
+    prompt_atos = """
+    Gere todos os cinco atos da aventura ('ato1', 'ato2', 'ato3', 'ato4', 'ato5') e o 'resumo' final.
+    Formato JSON Obrigatório:
+    {
+        "ato1": {
+            "titulo": "Título do Ato",
+            "sinopse": "Resumo do que acontece",
+            "cenas": [
+                {
+                    "nome": "Nome da Cena",
+                    "locais": ["Local A"],
+                    "personagens": ["NPC A"],
+                    "descricao": "Descrição narrativa detalhada.",
+                    "desafios_associados": ["Desafio X"]
+                }
+            ]
+        },
+        "ato2": { "titulo": "...", "sinopse": "...", "cenas": [...] },
+        "ato3": { "titulo": "...", "sinopse": "...", "cenas": [...] },
+        "ato4": { "titulo": "...", "sinopse": "...", "cenas": [...] },
+        "ato5": { "titulo": "...", "sinopse": "...", "cenas": [...] },
+        "resumo": "Resumo final de toda a campanha"
+    }
+    """
+    try:
+        response = enviar_mensagem(chat, prompt_atos)
         try:
-            response = enviar_mensagem(chat, prompt_ato)
-            try:
-                # Tenta JSON primeiro
-                clean = response.replace("```json", "").replace("```", "").strip()
-                data = json.loads(clean)
-                
-                # LÓGICA ROBUSTA: Verifica se veio como { "ato1": {...} } ou direto { "titulo": ... }
-                if ato_key in data:
-                     yield json.dumps({"type": "data", "section": ato_key, "content": data[ato_key]}) + "\n"
-                elif "titulo" in data or "cenas" in data:
-                     # O modelo mandou o objeto direto, sem o wrapper "ato1"
-                     print(f"Info: Aceitando JSON direto para {ato_key}")
-                     yield json.dumps({"type": "data", "section": ato_key, "content": data}) + "\n"
-                
-                if "resumo" in data:
-                     yield json.dumps({"type": "data", "section": "resumo", "content": data["resumo"]}) + "\n"
-                     
-            except json.JSONDecodeError:
-                # Fallback: Envia texto bruto se não for JSON válido
-                print(f"Warn: JSON falhou para {ato_key}, enviando texto bruto.")
-                yield json.dumps({"type": "data", "section": ato_key, "content": response}) + "\n"
-                
-        except Exception as e:
-            print(f"Erro Crítico {ato_key}: {e}")
-            yield json.dumps({"type": "error", "message": f"Erro ao gerar {ato_key}: {str(e)}"}) + "\n"
+            clean = response.replace("```json", "").replace("```", "").strip()
+            data = json.loads(clean)
+            
+            for key in ["ato1", "ato2", "ato3", "ato4", "ato5", "resumo"]:
+                if key in data:
+                    yield json.dumps({"type": "data", "section": key, "content": data[key]}) + "\n"
+                    
+        except json.JSONDecodeError:
+            print(f"Warn: JSON dos atos falhou, enviando texto bruto.")
+            yield json.dumps({"type": "data", "section": "ato1", "content": response}) + "\n"
+            
+    except Exception as e:
+        print(f"Erro Crítico nos Atos: {e}")
+        yield json.dumps({"type": "error", "message": f"Erro ao gerar a história: {str(e)}"}) + "\n"
 
 def gerar_aventura_batch(**kwargs):
     """

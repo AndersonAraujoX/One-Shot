@@ -171,6 +171,10 @@ function TabbedView({ adventure, onUpdate }) {
                                     src={coverUrl}
                                     alt="Capa da Aventura"
                                     style={{ width: '100%', maxWidth: '800px', borderRadius: '8px', boxShadow: '0 4px 12px rgba(0,0,0,0.3)' }}
+                                    onError={(e) => {
+                                        e.target.onerror = null;
+                                        e.target.src = 'https://placehold.co/800x400/1a1a1a/e91e63?text=IA+Grafica+Offline';
+                                    }}
                                 />
                                 {adventure.prompt_imagem_capa && (
                                     <div className="prompt-box" style={{ background: 'rgba(255,255,255,0.05)', padding: '10px', borderRadius: '5px', marginTop: '10px', fontSize: '0.8rem', color: '#aaa', textAlign: 'left', borderLeft: '4px solid #e91e63' }}>
@@ -218,6 +222,10 @@ function TabbedView({ adventure, onUpdate }) {
                                                     alt={item.nome || 'Imagem Gerada'}
                                                     style={{ width: '100%', borderRadius: '4px', boxShadow: '0 2px 4px rgba(0,0,0,0.2)' }}
                                                     loading="lazy"
+                                                    onError={(e) => {
+                                                        e.target.onerror = null;
+                                                        e.target.src = 'https://placehold.co/400x400/1a1a1a/9c27b0?text=Arte+Indisponível';
+                                                    }}
                                                 />
                                                 <div className="mini-prompt" style={{ marginTop: '5px', fontSize: '0.7rem', color: '#666' }}>
                                                     <strong>🎨 Prompt:</strong> {item.prompt_imagem}
